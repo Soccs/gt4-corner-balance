@@ -22,6 +22,7 @@ img{max-width:100%}
   --diag-a:#2A62CF; --diag-b:#D08A00;
   --good:#1D8653; --warn:#9A5B00; --bad:#BF3129;
   --good-bg:#E2F3EA; --warn-bg:#FBF0DC; --bad-bg:#FBE6E4;
+  --car-body:#D3D9E0; --car-line:#8B96A2; --glass:#29303A; --cool:#4A78D4; --hot:#EC7A1E;
   --font-display:"Saira Condensed","Arial Narrow","Roboto Condensed",sans-serif;
   --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
@@ -31,6 +32,7 @@ img{max-width:100%}
     --bg:#0F1216; --surface:#171B20; --surface-2:#1F242A; --ink:#E6EAEE; --muted:#97A2AD; --line:#2C333B;
     --accent:#FFC21A; --accent-ink:#1B1500; --diag-a:#6F9BFF; --diag-b:#FFC21A;
     --good:#43C484; --warn:#F2A43A; --bad:#FF6A5F; --good-bg:#14301F; --warn-bg:#33270F; --bad-bg:#3A1714;
+    --car-body:#29303A; --car-line:#56616D; --glass:#0A0C0F; --cool:#5B8BF0; --hot:#FF9A3D;
     color-scheme:dark;
   }
 }
@@ -38,6 +40,7 @@ img{max-width:100%}
   --bg:#0F1216; --surface:#171B20; --surface-2:#1F242A; --ink:#E6EAEE; --muted:#97A2AD; --line:#2C333B;
   --accent:#FFC21A; --accent-ink:#1B1500; --diag-a:#6F9BFF; --diag-b:#FFC21A;
   --good:#43C484; --warn:#F2A43A; --bad:#FF6A5F; --good-bg:#14301F; --warn-bg:#33270F; --bad-bg:#3A1714;
+  --car-body:#29303A; --car-line:#56616D; --glass:#0A0C0F; --cool:#5B8BF0; --hot:#FF9A3D;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -109,8 +112,9 @@ section[role="tabpanel"]{display:grid;gap:16px}
 .roundhead h2{font-size:1.8rem;text-transform:uppercase}
 .nose{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .nose::before,.nose::after{content:"";height:1px;flex:1;background:var(--line)}
-.plan{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
-.plan svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible}
+.plan{position:relative;display:grid;grid-template-columns:minmax(0,1fr) min(30%,170px) minmax(0,1fr);gap:14px 6px;padding-block:18px}
+.plan svg.car{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible}
+#pad-LF{grid-column:1;grid-row:1} #pad-RF{grid-column:3;grid-row:1} #pad-LR{grid-column:1;grid-row:2} #pad-RR{grid-column:3;grid-row:2}
 .pad{position:relative;z-index:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px;display:grid;gap:8px;min-width:0}
 .pad-top{display:flex;align-items:baseline;gap:6px;min-width:0}
 .code{font-family:var(--font-display);font-weight:700;font-size:1.5rem;line-height:1}
@@ -124,10 +128,26 @@ section[role="tabpanel"]{display:grid;gap:16px}
 .w-unit{font-family:var(--font-mono);font-size:.8rem;color:var(--muted)}
 .rh-row{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted)}
 .rh-in{width:4.6em;border:1px solid var(--line);background:var(--surface-2);border-radius:7px;padding:4px 6px;font-family:var(--font-mono);font-size:.9rem;font-variant-numeric:tabular-nums}
-.mid{grid-column:1/-1;position:relative;z-index:1;display:grid;gap:4px;justify-items:center;padding-block:6px}
-.mid .axis{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;background:var(--bg);border-radius:8px;padding:3px 10px;font-size:.82rem;color:var(--muted)}
-.mid b{font-family:var(--font-mono);font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;margin-left:4px}
-.mid .axis span{display:inline-flex;align-items:center;gap:5px}
+.rh-short{display:none}
+.plan-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin-top:2px;font-size:.82rem;color:var(--muted)}
+.plan-legend span{display:inline-flex;align-items:center;gap:6px}
+.plan-legend b{font-family:var(--font-mono);font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.heat{display:inline-block;width:44px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--cool),var(--hot))}
+
+/* Car drawing (top view, front up) */
+.car-body{fill:var(--car-body);stroke:var(--car-line);stroke-width:1.3}
+.car-stripe{fill:var(--accent);opacity:.9}
+.car-glass{fill:var(--glass)}
+.car-detail{fill:none;stroke:var(--car-line);stroke-width:1.1}
+.car-dark{fill:var(--glass);opacity:.75}
+.car-wing{fill:var(--car-line);stroke:var(--ink);stroke-width:.8}
+.car-label{font-family:var(--font-mono);font-size:8.5px;letter-spacing:.14em;fill:var(--muted);text-anchor:middle;paint-order:stroke;stroke:var(--car-body);stroke-width:3px}
+.car-value{font-family:var(--font-mono);font-size:12px;font-weight:600;fill:var(--ink);text-anchor:middle;paint-order:stroke;stroke:var(--car-body);stroke-width:4px}
+.wheel{stroke:var(--ink);stroke-width:1.2}
+.wheel-glow{fill:none;stroke-width:7;opacity:.3}
+.tread{stroke:var(--ink);stroke-width:1;opacity:.28}
+.diag-line{stroke-linecap:round;opacity:.92}
+.diag-hub{fill:var(--surface);stroke:var(--ink);stroke-width:1.4}
 
 /* Readout */
 .readout{display:grid;gap:14px}
@@ -136,12 +156,32 @@ section[role="tabpanel"]{display:grid;gap:16px}
 .biglabel{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-family:var(--font-mono)}
 .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-weight:600;font-size:.9rem}
 .pill.good{background:var(--good-bg);color:var(--good)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.bad{background:var(--bad-bg);color:var(--bad)}
-.gauge{position:relative;height:34px;margin-top:4px}
-.g-track{position:absolute;left:0;right:0;top:13px;height:8px;border-radius:4px;background:var(--surface-2);border:1px solid var(--line)}
-.g-band{position:absolute;top:13px;height:8px;background:var(--good-bg);border:1px solid var(--good);border-radius:4px}
-.g-target{position:absolute;top:6px;width:2px;height:22px;background:var(--ink);transform:translateX(-1px)}
-.g-now{position:absolute;top:9px;width:16px;height:16px;border-radius:50%;background:var(--diag-b);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--ink);transform:translateX(-8px)}
-.g-scale{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
+.dialrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px}
+.dialbox{display:grid;justify-items:center;width:min(100%,320px);margin-inline:auto}
+.dial{width:100%;height:auto;overflow:visible}
+.dial-edge{fill:none;stroke:var(--line);stroke-width:17;stroke-linecap:round}
+.dial-track{fill:none;stroke:var(--surface-2);stroke-width:14;stroke-linecap:round}
+.dial-band{fill:none;stroke:var(--good);stroke-width:14;opacity:.4}
+.dial-tick{stroke:var(--muted);stroke-width:1.2}
+.dial-target{stroke:var(--ink);stroke-width:2.5;stroke-linecap:round}
+.dial-needle{transform-origin:110px 118px;transform-box:view-box}
+.dial-needle line{stroke:var(--muted);stroke-width:3.5;stroke-linecap:round}
+.dial-needle circle{fill:var(--surface);stroke:var(--ink);stroke-width:3}
+.dial-needle.good line{stroke:var(--good)} .dial-needle.warn line{stroke:var(--warn)} .dial-needle.bad line{stroke:var(--bad)}
+.dial-lab{font-family:var(--font-mono);font-size:10px;fill:var(--muted)}
+.dial-read{text-align:center;margin-top:-4px;display:grid;gap:2px}
+.dial-side{display:grid;gap:8px;justify-items:center;flex:1;min-width:200px;text-align:center}
+.trendbox{display:grid;gap:6px}
+.trend{width:100%;height:auto;overflow:visible}
+.trend .band{fill:var(--good-bg);stroke:var(--good);stroke-width:1;stroke-dasharray:3 3}
+.trend .zero{stroke:var(--ink);stroke-width:1.2}
+.trend .grid{stroke:var(--line);stroke-width:1}
+.trend .line{fill:none;stroke:var(--diag-b);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.trend .line.now{stroke-dasharray:4 5}
+.trend .pt{fill:var(--diag-b);stroke:var(--surface);stroke-width:2}
+.trend .pt.last{stroke:var(--ink)}
+.trend .pt.now{fill:var(--surface);stroke:var(--diag-b);stroke-width:2.5}
+.trend text{font-family:var(--font-mono);font-size:10px;fill:var(--muted)}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;margin:0;border-top:1px solid var(--line)}
 .stats div{display:flex;justify-content:space-between;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line)}
 .stats dt{color:var(--muted);font-size:.85rem}
@@ -223,15 +263,22 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
 .histlist .hv{font-family:var(--font-mono);font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;grid-column:1}
 .histlist button{grid-row:1/3;grid-column:2}
 
+@media (max-width:560px){
+  .pname,.w-unit,.rh-long,.rh-mm{display:none}
+  .rh-short{display:inline}
+  .pad{padding:9px 9px 10px}
+  .w-in{font-size:1.3rem;padding:5px 7px}
+  .w-wrap{padding-right:0}
+  .rh-in{flex:1;min-width:0;width:auto}
+}
 @media (max-width:420px){
   h1{font-size:2.1rem}
   .big{font-size:3rem}
-  .w-in{font-size:1.4rem;padding:6px 8px}
   .tab{font-size:1rem}
   .tab .n{display:none}
 }
 @media (prefers-reduced-motion: no-preference){
-  .g-now{transition:left .25s ease}
+  .dial-needle{transition:transform .55s cubic-bezier(.2,.8,.2,1)}
 }
 </style>
 </head>
@@ -385,16 +432,16 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
         </div>
         <div class="nose" aria-hidden="true">Front</div>
         <div class="plan" id="plan">
-          <svg id="diag" aria-hidden="true"><line id="line-a"></line><line id="line-b"></line></svg>
+          <svg class="car" id="carsvg" aria-hidden="true"></svg>
           <div class="pad" id="pad-LF"></div>
           <div class="pad" id="pad-RF"></div>
-          <div class="mid">
-            <div class="axis"><span>Front<b id="m-front">–</b></span><span>Rear<b id="m-rear">–</b></span></div>
-            <div class="axis"><span>Left<b id="m-left">–</b></span><span>Right<b id="m-right">–</b></span></div>
-            <div class="axis"><span><i class="dot a"></i>LF + RR<b id="m-a">–</b></span><span><i class="dot b"></i>RF + LR<b id="m-b">–</b></span></div>
-          </div>
           <div class="pad" id="pad-LR"></div>
           <div class="pad" id="pad-RR"></div>
+        </div>
+        <div class="plan-legend">
+          <span><i class="dot a"></i>LF + RR <b id="m-a">–</b></span>
+          <span><i class="dot b"></i>RF + LR <b id="m-b">–</b></span>
+          <span><i class="heat" aria-hidden="true"></i>Tyre colour: lighter to heavier corner</span>
         </div>
       </div>
 
@@ -654,7 +701,7 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
         '<span class="pname">' + NAME[c] + '</span><span class="share" id="sh-' + c + '">–</span></div>' +
         '<label class="sr" for="w-' + c + '">' + NAME[c] + ' scale reading</label>' +
         '<div class="w-wrap"><input id="w-' + c + '" class="w-in" inputmode="decimal" autocomplete="off" enterkeyhint="next" data-corner="' + c + '"><span class="w-unit u-label">kg</span></div>' +
-        '<div class="rh-row"><label for="rh-' + c + '">Ride height</label><input id="rh-' + c + '" class="rh-in" inputmode="decimal" autocomplete="off" data-corner="' + c + '"><span>mm</span></div>';
+        '<div class="rh-row"><label for="rh-' + c + '"><span class="rh-long">Ride height</span><span class="rh-short">RH</span></label><input id="rh-' + c + '" class="rh-in" inputmode="decimal" autocomplete="off" data-corner="' + c + '"><span class="rh-mm">mm</span></div>';
     });
     $("#adj-grid").innerHTML = C.map(function(c){
       return '<div class="adj"><div class="adj-top"><span class="code" style="font-size:1.2rem">' + c + '</span>' +
@@ -714,13 +761,9 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
     $("#round-sub").textContent = n === 1 ? "Scale readings with the driver in" : "After the round " + (n - 1) + " change, settled";
 
     C.forEach(function(c){ $("#sh-" + c).textContent = r ? pct(state.cur.w[c] / r.T, 1) : "–"; });
-    $("#m-front").textContent = r ? pct(r.front, 1) : "–";
-    $("#m-rear").textContent = r ? pct(1 - r.front, 1) : "–";
-    $("#m-left").textContent = r ? pct(r.left, 1) : "–";
-    $("#m-right").textContent = r ? pct(1 - r.left, 1) : "–";
     $("#m-a").textContent = r ? fwu(r.diag) : "–";
     $("#m-b").textContent = r ? fwu(r.cross) : "–";
-    drawDiag(r);
+    drawPlan(r);
 
     renderCars();
     renderSensHelp();
@@ -769,23 +812,74 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
     }).join("");
   }
 
-  function drawDiag(r){
-    var plan = $("#plan"), svg = $("#diag");
+  /* Top view of a mid-engined coupe in a 100 x 260 box, front at the top. Axles sit at y=55 and y=205. */
+  var CAR = [
+    ["car-body", "M50,2 C66,2 80,7 86,20 C90,30 92,40 92,52 L92,70 C92,82 87,90 86,100 L86,140 C86,158 95,168 96,184 L96,222 C96,240 88,252 72,256 L50,258 L28,256 C12,252 4,240 4,222 L4,184 C5,168 14,158 14,140 L14,100 C13,90 8,82 8,70 L8,52 C8,40 10,30 14,20 C20,7 34,2 50,2 Z"],
+    ["car-stripe", "M42,3 L47,3 L47,257 L42,257 Z M53,3 L58,3 L58,257 L53,257 Z"],
+    ["car-detail", "M22,30 C36,24 64,24 78,30 M14,100 L14,140 M86,100 L86,140"],
+    ["car-dark", "M14,22 C17,14 25,9 33,9 L31,16 C25,17 20,20 17,26 Z M86,22 C83,14 75,9 67,9 L69,16 C75,17 80,20 83,26 Z"],
+    ["car-glass", "M20,104 C30,88 70,88 80,104 L75,120 C62,115 38,115 25,120 Z"],
+    ["car-glass", "M28,150 C40,147 60,147 72,150 L69,168 L31,168 Z"],
+    ["car-dark", "M13,148 C17,151 18,161 17,172 L12,170 Z M87,148 C83,151 82,161 83,172 L88,170 Z"],
+    ["car-detail", "M33,182 L67,182 M33,190 L67,190 M33,198 L67,198"],
+    ["car-wing", "M-4,228 L104,228 L104,237 L-4,237 Z M-6,223 L-1,223 L-1,242 L-6,242 Z M101,223 L106,223 L106,242 L101,242 Z"]
+  ];
+  function hexRGB(name){
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    var m = /^#([0-9a-f]{6})$/i.exec(v);
+    if (!m) return null;
+    var n = parseInt(m[1], 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function heatColor(t){
+    var a = hexRGB("--cool"), b = hexRGB("--hot");
+    if (!a || !b) return t > 0.5 ? "var(--hot)" : "var(--cool)";
+    return "rgb(" + [0, 1, 2].map(function(i){ return Math.round(a[i] + (b[i] - a[i]) * t); }).join(",") + ")";
+  }
+  function f1(v){ return v.toFixed(1); }
+
+  function drawPlan(r){
+    var plan = $("#plan"), svg = $("#carsvg");
     var pr = plan.getBoundingClientRect();
     if (!pr.width) return;
-    function ctr(c){ var b = $("#pad-" + c).getBoundingClientRect(); return [b.left - pr.left + b.width / 2, b.top - pr.top + b.height / 2]; }
-    svg.setAttribute("viewBox", "0 0 " + pr.width + " " + pr.height);
-    var dev = r ? (r.crossPct - 0.5) * 100 : 0;
-    var wb = 3 + Math.max(-2, Math.min(5, dev * 3)), wa = 3 + Math.max(-2, Math.min(5, -dev * 3));
-    [["line-a", "LF", "RR", "var(--diag-a)", wa], ["line-b", "RF", "LR", "var(--diag-b)", wb]].forEach(function(L){
-      var a = ctr(L[1]), b = ctr(L[2]), el = $("#" + L[0]);
-      el.setAttribute("x1", a[0]); el.setAttribute("y1", a[1]);
-      el.setAttribute("x2", b[0]); el.setAttribute("y2", b[1]);
-      el.setAttribute("stroke-width", L[4].toFixed(1));
-      el.setAttribute("stroke-linecap", "round");
-      el.setAttribute("stroke-dasharray", r ? "none" : "4 6");
-      el.style.stroke = L[3];
+    function box(c){ var b = $("#pad-" + c).getBoundingClientRect(); return {l:b.left - pr.left, r:b.right - pr.left, cy:b.top - pr.top + b.height / 2}; }
+    var lf = box("LF"), rf = box("RF"), lr = box("LR"), rr = box("RR");
+    var colL = Math.max(lf.r, lr.r), colR = Math.min(rf.l, rr.l), cx = (colL + colR) / 2, cw = colR - colL;
+    var fy = (lf.cy + rf.cy) / 2, ry = (lr.cy + rr.cy) / 2, wb = ry - fy;
+    if (wb <= 0 || cw <= 10) { svg.innerHTML = ""; return; }
+    var L = wb * 260 / 150, top = fy - wb * 55 / 150;
+    var W = Math.min(cw - 8, L * 0.44), left = cx - W / 2;
+    var ww = Math.max(9, W * 0.16), wh = Math.max(22, L * 0.15);
+    var hub = {LF:[left + ww * 0.12, fy], RF:[left + W - ww * 0.12, fy], LR:[left + ww * 0.12, ry], RR:[left + W - ww * 0.12, ry]};
+    svg.setAttribute("viewBox", "0 0 " + f1(pr.width) + " " + f1(pr.height));
+
+    var g = '<svg x="' + f1(left) + '" y="' + f1(top) + '" width="' + f1(W) + '" height="' + f1(L) + '" viewBox="0 0 100 260" preserveAspectRatio="none" overflow="visible">' +
+      CAR.map(function(p){ return '<path class="' + p[0] + '" d="' + p[1] + '" vector-effect="non-scaling-stroke"/>'; }).join("") + '</svg>';
+
+    C.forEach(function(c){
+      var h = hub[c], x = h[0] - ww / 2, y = h[1] - wh / 2;
+      var col = "var(--car-line)";
+      if (r) col = heatColor(Math.max(0, Math.min(1, (state.cur.w[c] / r.T - 0.2) / 0.1)));
+      if (r) g += '<rect class="wheel-glow" x="' + f1(x) + '" y="' + f1(y) + '" width="' + f1(ww) + '" height="' + f1(wh) + '" rx="3" style="stroke:' + col + '"/>';
+      g += '<rect class="wheel" x="' + f1(x) + '" y="' + f1(y) + '" width="' + f1(ww) + '" height="' + f1(wh) + '" rx="3" style="fill:' + col + '"/>';
+      for (var k = 1; k <= 4; k++) { var ty = y + wh * k / 5; g += '<line class="tread" x1="' + f1(x + 2) + '" y1="' + f1(ty) + '" x2="' + f1(x + ww - 2) + '" y2="' + f1(ty) + '"/>'; }
     });
+
+    var dev = r ? (r.crossPct - 0.5) * 100 : 0;
+    var wB = 3.5 + Math.max(-2, Math.min(5, dev * 3)), wA = 3.5 + Math.max(-2, Math.min(5, -dev * 3));
+    [["--diag-a", "LF", "RR", wA], ["--diag-b", "RF", "LR", wB]].forEach(function(D){
+      var a = hub[D[1]], b = hub[D[2]];
+      g += '<line class="diag-line" x1="' + f1(a[0]) + '" y1="' + f1(a[1]) + '" x2="' + f1(b[0]) + '" y2="' + f1(b[1]) + '" style="stroke:var(' + D[0] + ')" stroke-width="' + D[3].toFixed(1) + '"' + (r ? '' : ' stroke-dasharray="4 6"') + '/>';
+    });
+    g += '<circle class="diag-hub" cx="' + f1(cx) + '" cy="' + f1((fy + ry) / 2) + '" r="4"/>';
+
+    if (r) {
+      g += '<text class="car-label" x="' + f1(cx) + '" y="' + f1(fy - 9) + '">FRONT</text>';
+      g += '<text class="car-value" x="' + f1(cx) + '" y="' + f1(fy + 6) + '">' + pct(r.front, 1) + '</text>';
+      g += '<text class="car-label" x="' + f1(cx) + '" y="' + f1(ry - 9) + '">REAR</text>';
+      g += '<text class="car-value" x="' + f1(cx) + '" y="' + f1(ry + 6) + '">' + pct(1 - r.front, 1) + '</text>';
+    }
+    svg.innerHTML = g;
   }
 
   function renderSensHelp(){
@@ -797,11 +891,80 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
     $("#sens-help").textContent = t + " Spring rates are optional; they sharpen the first guess and the ride-height predictions.";
   }
 
+  /* Dial: arc centred at (110,118), radius 90, target always at the top. */
+  function buildReadout(){
+    var arc = "M20,118 A90,90 0 0 1 200,118";
+    $("#readout").innerHTML =
+      '<div class="dialrow">' +
+        '<div class="dialbox">' +
+          '<svg class="dial" viewBox="0 0 220 136" role="img" aria-labelledby="cross-big">' +
+            '<path class="dial-edge" d="' + arc + '"/><path class="dial-track" d="' + arc + '"/>' +
+            '<path class="dial-band" id="dial-band" d=""/><g id="dial-ticks"></g>' +
+            '<line class="dial-target" x1="110" y1="44" x2="110" y2="10"/>' +
+            '<text class="dial-lab" id="dial-mid" x="110" y="3" text-anchor="middle"></text>' +
+            '<text class="dial-lab" id="dial-lo" x="20" y="134" text-anchor="middle"></text>' +
+            '<text class="dial-lab" id="dial-hi" x="200" y="134" text-anchor="middle"></text>' +
+            '<g class="dial-needle" id="dial-needle" style="transform:rotate(90deg)"><line x1="110" y1="118" x2="36" y2="118"/><circle cx="110" cy="118" r="7"/></g>' +
+          '</svg>' +
+          '<div class="dial-read"><p class="big" id="cross-big">–</p><p class="biglabel">Cross weight (RF + LR)</p></div>' +
+        '</div>' +
+        '<div class="dial-side"><span class="pill" id="cross-pill" hidden></span><span class="muted" id="cross-target" style="font-size:.85rem" hidden></span>' +
+        '<p class="muted" id="readout-empty">Enter all four scale readings to see the cross weight and what to adjust.</p></div>' +
+      '</div>' +
+      '<dl class="stats" id="stats" hidden></dl>' +
+      '<div class="trendbox" id="trend"></div>' +
+      '<div class="notes" id="notes"></div>';
+  }
+  function dialPt(f, rad){ var th = Math.PI - f * Math.PI; return [110 + rad * Math.cos(th), 118 - rad * Math.sin(th)]; }
+
+  function trendPoints(withNow){
+    var pts = [];
+    state.rounds.forEach(function(rd, i){ var c = calc(rd.w); if (c) pts.push({lab:"R" + (i + 1), dev:(c.crossPct - targetPct(c)) * 100}); });
+    if (withNow) { var c = calc(state.cur.w); if (c) pts.push({lab:"Now", dev:(c.crossPct - targetPct(c)) * 100, now:true}); }
+    return pts;
+  }
+  function trendSVG(pts, tol, H){
+    var Wv = 340, pl = 42, pr = 14, pt = 10, pb = 22;
+    var m = Math.max(tol * 2, 0.4);
+    pts.forEach(function(p){ m = Math.max(m, Math.abs(p.dev) * 1.15); });
+    var n = pts.length;
+    function X(i){ return pl + (n === 1 ? (Wv - pl - pr) / 2 : i * (Wv - pl - pr) / (n - 1)); }
+    function Y(d){ return pt + (m - d) / (2 * m) * (H - pt - pb); }
+    var dp = m < 1 ? 2 : 1;
+    var s = '<svg class="trend" viewBox="0 0 ' + Wv + ' ' + H + '" role="img" aria-label="Cross weight by round, in points off target">';
+    s += '<rect class="band" x="' + pl + '" y="' + f1(Y(tol)) + '" width="' + (Wv - pl - pr) + '" height="' + f1(Y(-tol) - Y(tol)) + '" rx="3"/>';
+    [m, -m].forEach(function(v){ s += '<line class="grid" x1="' + pl + '" y1="' + f1(Y(v)) + '" x2="' + (Wv - pr) + '" y2="' + f1(Y(v)) + '"/>'; });
+    s += '<line class="zero" x1="' + pl + '" y1="' + f1(Y(0)) + '" x2="' + (Wv - pr) + '" y2="' + f1(Y(0)) + '"/>';
+    s += '<text x="' + (pl - 6) + '" y="' + f1(Y(m) + 3) + '" text-anchor="end">+' + m.toFixed(dp) + '</text>';
+    s += '<text x="' + (pl - 6) + '" y="' + f1(Y(0) + 3) + '" text-anchor="end">target</text>';
+    s += '<text x="' + (pl - 6) + '" y="' + f1(Y(-m) + 3) + '" text-anchor="end">−' + m.toFixed(dp) + '</text>';
+    var saved = pts.filter(function(p){ return !p.now; });
+    if (saved.length > 1) s += '<path class="line" d="' + saved.map(function(p, i){ return (i ? "L" : "M") + f1(X(i)) + "," + f1(Y(p.dev)); }).join(" ") + '"/>';
+    var nowP = pts[n - 1] && pts[n - 1].now ? pts[n - 1] : null;
+    if (nowP && saved.length) s += '<path class="line now" d="M' + f1(X(saved.length - 1)) + ',' + f1(Y(saved[saved.length - 1].dev)) + ' L' + f1(X(n - 1)) + ',' + f1(Y(nowP.dev)) + '"/>';
+    var every = Math.ceil(n / 9);
+    pts.forEach(function(p, i){
+      var cls = p.now ? "pt now" : (i === saved.length - 1 ? "pt last" : "pt");
+      s += '<circle class="' + cls + '" cx="' + f1(X(i)) + '" cy="' + f1(Y(p.dev)) + '" r="' + (p.now || i === saved.length - 1 ? 5 : 4) + '"/>';
+      if (i % every === 0 || i === n - 1) s += '<text x="' + f1(X(i)) + '" y="' + (H - 5) + '" text-anchor="middle">' + p.lab + '</text>';
+    });
+    return s + '</svg>';
+  }
+
   function renderReadout(r){
-    var el = $("#readout");
+    var needle = $("#dial-needle");
+    $("#readout-empty").hidden = !!r;
+    $("#stats").hidden = !r; $("#cross-pill").hidden = !r; $("#cross-target").hidden = !r;
+    var tp = trendPoints(true);
+    $("#trend").innerHTML = tp.length >= 2 ? '<p class="biglabel">Cross weight by round · points off target</p>' + trendSVG(tp, tolPts(), 130) : "";
     if (!r) {
-      el.innerHTML = '<div class="headline"><div><p class="biglabel">Cross weight (RF + LR)</p><p class="big">–</p></div></div>' +
-        '<p class="muted">Enter all four scale readings to see the cross weight and what to adjust.</p>';
+      $("#cross-big").textContent = "–";
+      needle.setAttribute("class", "dial-needle");
+      needle.style.transform = "rotate(90deg)";
+      $("#dial-band").setAttribute("d", "");
+      $("#dial-ticks").innerHTML = "";
+      $("#dial-lo").textContent = ""; $("#dial-hi").textContent = ""; $("#dial-mid").textContent = "";
+      $("#notes").innerHTML = "";
       return;
     }
     var t = targetPct(r), tol = tolPts();
@@ -813,19 +976,25 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
 
     var span = Math.max(1, Math.abs(devPts) * 1.3, tol * 2.5);
     var lo = t * 100 - span, hi = t * 100 + span;
-    function pos(x){ return Math.max(0, Math.min(100, (x - lo) / (hi - lo) * 100)); }
+    function frac(v){ return Math.max(0, Math.min(1, (v - lo) / (hi - lo))); }
+    var p1 = dialPt(frac(t * 100 - tol), 90), p2 = dialPt(frac(t * 100 + tol), 90);
+    $("#dial-band").setAttribute("d", "M" + f1(p1[0]) + "," + f1(p1[1]) + " A90,90 0 0 1 " + f1(p2[0]) + "," + f1(p2[1]));
+    var step = span <= 1.25 ? 0.25 : span <= 2.5 ? 0.5 : 1, ticks = "";
+    for (var v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) {
+      var a = dialPt(frac(v), 100), b = dialPt(frac(v), 106);
+      ticks += '<line class="dial-tick" x1="' + f1(a[0]) + '" y1="' + f1(a[1]) + '" x2="' + f1(b[0]) + '" y2="' + f1(b[1]) + '"/>';
+    }
+    $("#dial-ticks").innerHTML = ticks;
+    $("#dial-lo").textContent = lo.toFixed(2) + "%";
+    $("#dial-hi").textContent = hi.toFixed(2) + "%";
+    $("#dial-mid").textContent = pct(t);
+    needle.setAttribute("class", "dial-needle " + cls);
+    needle.style.transform = "rotate(" + (frac(r.crossPct * 100) * 180).toFixed(2) + "deg)";
+    $("#cross-big").textContent = pct(r.crossPct);
+    var pill = $("#cross-pill"); pill.className = "pill " + cls; pill.textContent = pillTxt;
+    $("#cross-target").textContent = "Target " + pct(t) + " · " + targetName() + " · ±" + tol.toFixed(2);
 
-    var html =
-      '<div class="headline"><div><p class="biglabel">Cross weight (RF + LR)</p><p class="big">' + pct(r.crossPct) + '</p></div>' +
-      '<div style="display:grid;gap:6px;justify-items:end"><span class="pill ' + cls + '">' + esc(pillTxt) + '</span>' +
-      '<span class="muted" style="font-size:.85rem">Target ' + pct(t) + ' · ' + targetName() + ' · ±' + tol.toFixed(2) + '</span></div></div>' +
-      '<div><div class="gauge" role="img" aria-label="Cross weight ' + pct(r.crossPct) + ' against target ' + pct(t) + '">' +
-      '<div class="g-track"></div>' +
-      '<div class="g-band" style="left:' + pos(t * 100 - tol) + '%;width:' + (pos(t * 100 + tol) - pos(t * 100 - tol)) + '%"></div>' +
-      '<div class="g-target" style="left:' + pos(t * 100) + '%"></div>' +
-      '<div class="g-now" style="left:' + pos(r.crossPct * 100) + '%"></div></div>' +
-      '<div class="g-scale"><span>' + lo.toFixed(2) + '%</span><span>' + (t * 100).toFixed(2) + '%</span><span>' + hi.toFixed(2) + '%</span></div></div>' +
-      '<dl class="stats">' +
+    $("#stats").innerHTML =
       stat("Total", fwu(r.T)) +
       stat("Off target", signed(devPts, 2) + " pts") +
       stat("Front / rear", pct(r.front, 1) + " / " + pct(1 - r.front, 1)) +
@@ -833,8 +1002,7 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
       stat("LF + RR", fwu(r.diag)) +
       stat("RF + LR", fwu(r.cross)) +
       stat("Front axle, left share", pct(r.fl, 1)) +
-      stat("Rear axle, left share", pct(r.rl, 1)) +
-      '</dl>';
+      stat("Rear axle, left share", pct(r.rl, 1));
 
     var notes = [];
     var last = state.rounds[state.rounds.length - 1];
@@ -856,8 +1024,7 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
       var dL = (r.left - lr.left) * 100;
       if (Math.abs(dL) > 0.4) notes.push(["warn", "Left share moved " + signed(dL, 2) + " points since the last round. Spring seats barely change it, so check the driver sits the same way each time."]);
     }
-    if (notes.length) html += '<div class="notes">' + notes.map(function(n){ return '<p class="note ' + n[0] + '">' + esc(n[1]) + '</p>'; }).join("") + '</div>';
-    el.innerHTML = html;
+    $("#notes").innerHTML = notes.map(function(n){ return '<p class="note ' + n[0] + '">' + esc(n[1]) + '</p>'; }).join("");
   }
   function stat(k, v){ return '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>'; }
 
@@ -978,7 +1145,8 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
           '<td><b>' + (c ? pct(c.crossPct) : "–") + '</b></td><td>' + (c ? signed((c.crossPct - t) * 100, 2) : "–") + '</td>' +
           '<td>' + (res || "—") + '</td><td class="adjcell">' + esc(adjText(rd.adj)) + '</td></tr>';
       }).join("");
-      body.innerHTML = '<div class="tablewrap"><table><thead><tr><th>Rnd</th><th>LF</th><th>RF</th><th>LR</th><th>RR</th><th>Total</th><th>Front</th><th>Left</th><th>Cross</th><th>vs target</th><th>Δ RF+LR</th><th>Then changed</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+      body.innerHTML = (R.length >= 2 ? '<div class="panel trendbox"><h3>Cross weight by round</h3><p class="help">Points off target. The shaded band is your tolerance.</p>' + trendSVG(trendPoints(false), tolPts(), 170) + '</div>' : '') +
+        '<div class="tablewrap"><table><thead><tr><th>Rnd</th><th>LF</th><th>RF</th><th>LR</th><th>RR</th><th>Total</th><th>Front</th><th>Left</th><th>Cross</th><th>vs target</th><th>Δ RF+LR</th><th>Then changed</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
         '<p class="help">Weights in ' + U() + '. “Δ RF+LR” is how much the cross diagonal moved since the round before, with the app\'s prediction in brackets.</p>';
     }
 
@@ -1111,7 +1279,7 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
       $("#t-" + k).setAttribute("aria-selected", k === t ? "true" : "false");
     });
     persist();
-    if (t === "balance") requestAnimationFrame(function(){ drawDiag(calc(state.cur.w)); });
+    if (t === "balance") requestAnimationFrame(function(){ drawPlan(calc(state.cur.w)); });
   }
 
   /* ---------- cars ---------- */
@@ -1323,14 +1491,18 @@ textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border
 
   /* ---------- boot ---------- */
   buildPads();
+  buildReadout();
   fillInputs();
   switchTab(app.tab || "balance");
   render();
   persist();
   if (app.wake) requestWake(true);
-  if ("ResizeObserver" in window) new ResizeObserver(function(){ drawDiag(calc(state.cur.w)); }).observe($("#plan"));
-  else window.addEventListener("resize", function(){ drawDiag(calc(state.cur.w)); });
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ drawDiag(calc(state.cur.w)); });
+  if ("ResizeObserver" in window) new ResizeObserver(function(){ drawPlan(calc(state.cur.w)); }).observe($("#plan"));
+  else window.addEventListener("resize", function(){ drawPlan(calc(state.cur.w)); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ drawPlan(calc(state.cur.w)); });
+  // tyre colours are computed from theme tokens, so redraw when the theme changes
+  try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){ drawPlan(calc(state.cur.w)); }); } catch (e) {}
+  if ("MutationObserver" in window) new MutationObserver(function(){ drawPlan(calc(state.cur.w)); }).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
 })();
 </script>
 </body>
