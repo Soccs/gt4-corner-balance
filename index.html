@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Step-by-step corner weighting for a Porsche Cayman GT4: prep checklist, cross-weight maths, spring-seat adjustments and a round-by-round log.">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>GT4 Corner Balance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Saira+Condensed:wght@600;700&display=swap">
+<style>
+/* Layout: one-column pit board. Sticky step tabs, a plan view of the car with four scale pads, then the readout and the next spring-seat move. */
+:root{
+  --bg:#E7EAEE; --surface:#FFFFFF; --surface-2:#F2F4F7; --ink:#14171B; --muted:#58626D; --line:#C9D0D8;
+  --accent:#F4B400; --accent-ink:#1B1500;
+  --diag-a:#2A62CF; --diag-b:#D08A00;
+  --good:#1D8653; --warn:#9A5B00; --bad:#BF3129;
+  --good-bg:#E2F3EA; --warn-bg:#FBF0DC; --bad-bg:#FBE6E4;
+  --font-display:"Saira Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1216; --surface:#171B20; --surface-2:#1F242A; --ink:#E6EAEE; --muted:#97A2AD; --line:#2C333B;
+    --accent:#FFC21A; --accent-ink:#1B1500; --diag-a:#6F9BFF; --diag-b:#FFC21A;
+    --good:#43C484; --warn:#F2A43A; --bad:#FF6A5F; --good-bg:#14301F; --warn-bg:#33270F; --bad-bg:#3A1714;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1216; --surface:#171B20; --surface-2:#1F242A; --ink:#E6EAEE; --muted:#97A2AD; --line:#2C333B;
+  --accent:#FFC21A; --accent-ink:#1B1500; --diag-a:#6F9BFF; --diag-b:#FFC21A;
+  --good:#43C484; --warn:#F2A43A; --bad:#FF6A5F; --good-bg:#14301F; --warn-bg:#33270F; --bad-bg:#3A1714;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.app{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 56px}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:700;line-height:1.05;margin:0;text-wrap:balance;letter-spacing:.01em}
+p{margin:0}
+button{font:inherit;color:inherit}
+input,select{font:inherit;color:var(--ink)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Header */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 16px;margin-bottom:14px}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:2.5rem;text-transform:uppercase}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:6px 11px;border-radius:7px;cursor:pointer;font-weight:600;font-size:.85rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.chipbtn{border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:6px 11px;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--muted)}
+.chipbtn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+/* Tabs */
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;margin-bottom:14px}
+.tabs-inner{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:4px}
+.tab{border:0;background:none;border-radius:9px;padding:9px 4px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:1.1rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.tab .n{font-family:var(--font-mono);font-size:.7rem;font-weight:500;margin-right:4px;opacity:.75}
+
+section[role="tabpanel"]{display:grid;gap:16px}
+.lede{color:var(--muted);max-width:62ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel h3{font-size:1.35rem;text-transform:uppercase}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* Banner */
+.banner{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;background:var(--warn-bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:.9rem}
+.banner b{font-weight:600}
+
+/* Buttons */
+.btn{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.small{padding:6px 10px;font-size:.85rem;border-radius:8px}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Plan view */
+.roundhead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 12px}
+.roundhead h2{font-size:1.8rem;text-transform:uppercase}
+.nose{display:flex;align-items:center;justify-content:center;gap:8px;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.nose::before,.nose::after{content:"";height:1px;flex:1;background:var(--line)}
+.plan{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.plan svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible}
+.pad{position:relative;z-index:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px 12px;display:grid;gap:8px;min-width:0}
+.pad-top{display:flex;align-items:baseline;gap:6px;min-width:0}
+.code{font-family:var(--font-display);font-weight:700;font-size:1.5rem;line-height:1}
+.pname{font-size:.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.share{font-family:var(--font-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none;align-self:center}
+.dot.a{background:var(--diag-a)} .dot.b{background:var(--diag-b)}
+.w-wrap{display:flex;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding-right:10px}
+.w-in{flex:1;min-width:0;width:100%;border:0;background:none;font-family:var(--font-mono);font-weight:600;font-size:1.65rem;padding:6px 10px;font-variant-numeric:tabular-nums}
+.w-in::placeholder,.rh-in::placeholder{color:var(--muted);opacity:.55}
+.w-unit{font-family:var(--font-mono);font-size:.8rem;color:var(--muted)}
+.rh-row{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--muted)}
+.rh-in{width:4.6em;border:1px solid var(--line);background:var(--surface-2);border-radius:7px;padding:4px 6px;font-family:var(--font-mono);font-size:.9rem;font-variant-numeric:tabular-nums}
+.mid{grid-column:1/-1;position:relative;z-index:1;display:grid;gap:4px;justify-items:center;padding-block:6px}
+.mid .axis{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;background:var(--bg);border-radius:8px;padding:3px 10px;font-size:.82rem;color:var(--muted)}
+.mid b{font-family:var(--font-mono);font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;margin-left:4px}
+.mid .axis span{display:inline-flex;align-items:center;gap:5px}
+
+/* Readout */
+.readout{display:grid;gap:14px}
+.headline{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 16px}
+.big{font-family:var(--font-display);font-weight:700;font-size:3.6rem;line-height:.9;font-variant-numeric:tabular-nums}
+.biglabel{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-family:var(--font-mono)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-weight:600;font-size:.9rem}
+.pill.good{background:var(--good-bg);color:var(--good)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.bad{background:var(--bad-bg);color:var(--bad)}
+.gauge{position:relative;height:34px;margin-top:4px}
+.g-track{position:absolute;left:0;right:0;top:13px;height:8px;border-radius:4px;background:var(--surface-2);border:1px solid var(--line)}
+.g-band{position:absolute;top:13px;height:8px;background:var(--good-bg);border:1px solid var(--good);border-radius:4px}
+.g-target{position:absolute;top:6px;width:2px;height:22px;background:var(--ink);transform:translateX(-1px)}
+.g-now{position:absolute;top:9px;width:16px;height:16px;border-radius:50%;background:var(--diag-b);border:2px solid var(--surface);box-shadow:0 0 0 1px var(--ink);transform:translateX(-8px)}
+.g-scale{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:.72rem;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;margin:0;border-top:1px solid var(--line)}
+.stats div{display:flex;justify-content:space-between;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line)}
+.stats dt{color:var(--muted);font-size:.85rem}
+.stats dd{margin:0;font-family:var(--font-mono);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.notes{display:grid;gap:8px}
+.note{border-radius:10px;padding:9px 12px;font-size:.88rem;background:var(--surface-2);border:1px solid var(--line)}
+.note.warn{background:var(--warn-bg)} .note.bad{background:var(--bad-bg)} .note.good{background:var(--good-bg)}
+
+/* Options */
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:10px}
+.opt{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;align-content:start;background:var(--surface)}
+.opt.best{border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good)}
+.opt-head{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;justify-content:space-between}
+.opt h4{font-size:1.15rem;text-transform:uppercase}
+.tag{font-size:.72rem;font-weight:600;border-radius:999px;padding:2px 8px;background:var(--good-bg);color:var(--good)}
+.moves{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.moves li{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}
+.moves .mv{font-weight:600}
+.moves .amt{font-family:var(--font-mono);font-weight:600;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.opt-note{font-size:.8rem;color:var(--muted)}
+
+/* Adjustment form */
+.adj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:10px}
+.adj{display:grid;gap:6px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--surface-2);min-width:0}
+.adj-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.adj .seg{background:var(--surface)}
+.adj .seg button{padding:5px 9px}
+.adj input{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 8px;font-family:var(--font-mono);font-size:1.1rem;font-variant-numeric:tabular-nums}
+.adj small{color:var(--muted)}
+.msg{font-size:.9rem;min-height:1.3em}
+.msg.ok{color:var(--good)} .msg.err{color:var(--bad)}
+
+/* Setup */
+details.setup summary{cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:1.25rem;text-transform:uppercase;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px}
+details.setup summary::-webkit-details-marker{display:none}
+details.setup summary::after{content:"+";font-family:var(--font-mono);font-size:1.2rem;color:var(--muted)}
+details.setup[open] summary::after{content:"–"}
+.setup-body{display:grid;gap:16px;margin-top:14px}
+.fgroup{display:grid;gap:10px}
+.fgroup h4{font-family:var(--font-mono);font-weight:600;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px}
+.field{display:grid;gap:4px;min-width:0}
+.field label{font-size:.82rem;color:var(--muted)}
+.field input,.field select{width:100%;border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:8px 10px;font-family:var(--font-mono);font-size:.95rem}
+.field select{font-family:var(--font-body)}
+.field.wide{grid-column:1/-1}
+.help{font-size:.82rem;color:var(--muted);max-width:68ch}
+
+/* Checklists */
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:0;counter-reset:s}
+.steps li{display:grid;grid-template-columns:auto auto 1fr;gap:4px 12px;align-items:start;padding:12px 2px;border-bottom:1px solid var(--line);counter-increment:s}
+.steps li::before{content:counter(s,decimal-leading-zero);font-family:var(--font-mono);font-size:.8rem;color:var(--muted);padding-top:3px}
+.steps input[type="checkbox"]{width:22px;height:22px;margin:0;accent-color:var(--accent)}
+.steps label{display:grid;gap:2px;cursor:pointer}
+.steps .t{font-weight:600}
+.steps .d{font-size:.88rem;color:var(--muted)}
+.steps li.done .t{text-decoration:line-through;text-decoration-color:var(--muted)}
+.howto{display:grid;gap:8px}
+.howto ol{margin:0;padding-left:1.2em;display:grid;gap:6px}
+.progress{font-family:var(--font-mono);font-size:.8rem;color:var(--muted)}
+
+/* Log */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{padding:8px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+th{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;background:var(--surface-2)}
+td{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+td.adjcell{text-align:left;font-family:var(--font-body);white-space:normal;min-width:150px}
+tr:last-child td{border-bottom:0}
+.empty{padding:22px 16px;text-align:center;color:var(--muted)}
+textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);font-family:var(--font-mono);font-size:.8rem;padding:10px}
+.kv{display:grid;gap:6px}
+.kv p{font-size:.92rem}
+
+@media (max-width:420px){
+  h1{font-size:2.1rem}
+  .big{font-size:3rem}
+  .w-in{font-size:1.4rem;padding:6px 8px}
+  .tab{font-size:1rem}
+  .tab .n{display:none}
+}
+@media (prefers-reduced-motion: no-preference){
+  .g-now{transition:left .25s ease}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <p class="eyebrow">Porsche Cayman GT4</p>
+      <h1>Corner Balance</h1>
+    </div>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Weight unit">
+        <button type="button" id="unit-kg" aria-pressed="true">kg</button>
+        <button type="button" id="unit-lb" aria-pressed="false">lb</button>
+      </div>
+      <button type="button" class="chipbtn" id="wake" aria-pressed="false">Keep screen on</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Steps">
+    <div class="tabs-inner" role="tablist">
+      <button class="tab" role="tab" id="t-prep" data-tab="prep" aria-controls="p-prep" aria-selected="false"><span class="n">1</span>Prep</button>
+      <button class="tab" role="tab" id="t-balance" data-tab="balance" aria-controls="p-balance" aria-selected="true"><span class="n">2</span>Balance</button>
+      <button class="tab" role="tab" id="t-log" data-tab="log" aria-controls="p-log" aria-selected="false"><span class="n">3</span>Log</button>
+      <button class="tab" role="tab" id="t-finish" data-tab="finish" aria-controls="p-finish" aria-selected="false"><span class="n">4</span>Finish</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- PREP -->
+    <section role="tabpanel" id="p-prep" aria-labelledby="t-prep" hidden>
+      <p class="lede">Do these in order before the first reading. Most bad corner-balance results come from the setup, not the adjusting.</p>
+      <p class="progress" id="prep-progress"></p>
+      <ol class="steps" id="prep-list"></ol>
+      <div class="panel howto">
+        <h3>Turning a spring seat</h3>
+        <ol>
+          <li>Driver out. Lift the corner until the spring is unloaded, and put a stand under the car before you reach in. Take the wheel off if you need room.</li>
+          <li>Loosen the lock ring with a C-spanner and turn the spring seat. Turning it up raises that corner and puts weight on that corner's diagonal.</li>
+          <li>Measure how far the seat moved with a ruler or calliper, or count turns if you've entered the thread pitch in Setup.</li>
+          <li>Tighten the lock ring, refit the wheel, lower the car, driver back in, settle, read.</li>
+        </ol>
+        <p class="help">Never work under a car held only by a jack, and never turn a spring seat while it carries weight.</p>
+      </div>
+      <div class="row"><button class="btn primary" type="button" data-goto="balance">Go to Balance</button></div>
+    </section>
+
+    <!-- BALANCE -->
+    <section role="tabpanel" id="p-balance" aria-labelledby="t-balance">
+      <div class="banner" id="example-banner">
+        <span><b>Example readings.</b> Tap any pad to start with your own numbers.</span>
+        <button class="btn small" type="button" id="clear-example">Start with my readings</button>
+      </div>
+
+      <details class="panel setup" id="setup">
+        <summary>Setup &amp; targets</summary>
+        <div class="setup-body">
+          <div class="fgroup">
+            <h4>Target</h4>
+            <div class="fields">
+              <div class="field">
+                <label for="set-mode">Cross-weight target</label>
+                <select id="set-mode">
+                  <option value="50">Equal diagonals (50%)</option>
+                  <option value="prop">Proportional split</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+              <div class="field" id="custom-field" hidden>
+                <label for="set-custom">Custom target (%)</label>
+                <input id="set-custom" inputmode="decimal" autocomplete="off" placeholder="50.0">
+              </div>
+              <div class="field">
+                <label for="set-tol">Tolerance (± % points)</label>
+                <input id="set-tol" inputmode="decimal" autocomplete="off" placeholder="0.3">
+              </div>
+            </div>
+            <p class="help"><b>Equal diagonals</b> makes LF + RR equal RF + LR. It's the usual target for a car that turns both ways. <b>Proportional</b> splits each axle left/right in the same ratio as the whole car, so the front's left share equals the rear's. With a driver in a left-hand-drive car the two targets usually differ by a few tenths of a percent.</p>
+          </div>
+
+          <div class="fgroup">
+            <h4>Ride heights</h4>
+            <div class="fields">
+              <div class="field"><label for="set-rhF">Front target (mm)</label><input id="set-rhF" inputmode="decimal" autocomplete="off" placeholder="optional"></div>
+              <div class="field"><label for="set-rhR">Rear target (mm)</label><input id="set-rhR" inputmode="decimal" autocomplete="off" placeholder="optional"></div>
+              <div class="field wide"><label for="set-rhRef">Measured from</label><input id="set-rhRef" autocomplete="off" placeholder="e.g. hub centre to wheel-arch edge"></div>
+            </div>
+            <p class="help">Enter ride heights on the pads and the app picks the adjustment that keeps them closest to these targets. With no targets it keeps left and right level.</p>
+          </div>
+
+          <div class="fgroup">
+            <h4>Adjuster and springs</h4>
+            <div class="fields">
+              <div class="field"><label for="set-pitch">Thread pitch (mm per turn)</label><input id="set-pitch" inputmode="decimal" autocomplete="off" placeholder="measure yours"></div>
+              <div class="field"><label for="set-kf">Front spring rate (N/mm)</label><input id="set-kf" inputmode="decimal" autocomplete="off" placeholder="optional"></div>
+              <div class="field"><label for="set-kr">Rear spring rate (N/mm)</label><input id="set-kr" inputmode="decimal" autocomplete="off" placeholder="optional"></div>
+              <div class="field"><label for="set-sOv" id="sOv-label">Fixed sensitivity (kg per mm)</label><input id="set-sOv" inputmode="decimal" autocomplete="off" placeholder="leave blank"></div>
+            </div>
+            <p class="help" id="sens-help"></p>
+          </div>
+
+          <div class="fgroup">
+            <h4>Conditions (for the log)</h4>
+            <div class="fields">
+              <div class="field"><label for="set-driver" id="driver-label">Driver weight (kg)</label><input id="set-driver" inputmode="decimal" autocomplete="off"></div>
+              <div class="field"><label for="set-fuel">Fuel (litres)</label><input id="set-fuel" inputmode="decimal" autocomplete="off"></div>
+              <div class="field"><label for="set-tpF">Tyres front, cold (bar)</label><input id="set-tpF" inputmode="decimal" autocomplete="off"></div>
+              <div class="field"><label for="set-tpR">Tyres rear, cold (bar)</label><input id="set-tpR" inputmode="decimal" autocomplete="off"></div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <div class="panel">
+        <div class="roundhead">
+          <h2 id="round-title">Round 1</h2>
+          <span class="muted" id="round-sub">Scale readings with the driver in</span>
+        </div>
+        <div class="nose" aria-hidden="true">Front</div>
+        <div class="plan" id="plan">
+          <svg id="diag" aria-hidden="true"><line id="line-a"></line><line id="line-b"></line></svg>
+          <div class="pad" id="pad-LF"></div>
+          <div class="pad" id="pad-RF"></div>
+          <div class="mid">
+            <div class="axis"><span>Front<b id="m-front">–</b></span><span>Rear<b id="m-rear">–</b></span></div>
+            <div class="axis"><span>Left<b id="m-left">–</b></span><span>Right<b id="m-right">–</b></span></div>
+            <div class="axis"><span><i class="dot a"></i>LF + RR<b id="m-a">–</b></span><span><i class="dot b"></i>RF + LR<b id="m-b">–</b></span></div>
+          </div>
+          <div class="pad" id="pad-LR"></div>
+          <div class="pad" id="pad-RR"></div>
+        </div>
+      </div>
+
+      <div class="panel readout" id="readout"></div>
+
+      <div class="panel" id="advice"></div>
+
+      <div class="panel" id="adjust-panel">
+        <div class="roundhead">
+          <h3>Adjustment you're making</h3>
+          <span class="muted">Spring-seat moves, in mm</span>
+        </div>
+        <p class="help" style="margin-block:6px 12px">Tap <b>Use this plan</b> above to fill these in, or enter what you actually turned. Save the round, make the change, settle the car, then enter the new readings.</p>
+        <div class="adj-grid" id="adj-grid"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" type="button" id="save-round">Save round</button>
+          <button class="btn small" type="button" id="clear-adj">Clear moves</button>
+        </div>
+        <p class="msg" id="save-msg" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- LOG -->
+    <section role="tabpanel" id="p-log" aria-labelledby="t-log" hidden>
+      <p class="lede">Every saved round, what you changed after it, and what that change did. The app uses these results to learn how much weight one millimetre of spring seat moves on your car.</p>
+      <div id="log-body"></div>
+      <div class="panel kv" id="log-learn"></div>
+      <div class="row">
+        <button class="btn primary" type="button" id="copy-log">Copy summary</button>
+        <button class="btn" type="button" id="undo-round">Delete last round</button>
+        <button class="btn danger" type="button" id="clear-all">Clear everything</button>
+      </div>
+      <p class="msg" id="log-msg" role="status" aria-live="polite"></p>
+      <textarea class="copybox" id="copybox" readonly hidden aria-label="Summary text"></textarea>
+    </section>
+
+    <!-- FINISH -->
+    <section role="tabpanel" id="p-finish" aria-labelledby="t-finish" hidden>
+      <p class="lede">Once the cross weight is inside your tolerance, finish in this order.</p>
+      <div class="panel kv" id="final-card"></div>
+      <p class="progress" id="fin-progress"></p>
+      <ol class="steps" id="fin-list"></ol>
+      <div class="row"><button class="btn primary" type="button" id="copy-final">Copy summary</button></div>
+      <p class="msg" id="fin-msg" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(s){ return document.querySelector(s); };
+  var C = ["LF","RF","LR","RR"];
+  var NAME = {LF:"Left front", RF:"Right front", LR:"Left rear", RR:"Right rear"};
+  var OPP = {LF:"RR", RR:"LF", RF:"LR", LR:"RF"};
+  var XS = {LF:-1, RF:1, LR:1, RR:-1};          // raising this corner adds (+) or removes (-) weight from the RF + LR diagonal
+  var DIAG = {LF:"a", RR:"a", RF:"b", LR:"b"};
+  var LB = 0.45359237, G = 9.80665;
+  var DEFAULT_S = 7;                           // kg of cross weight per mm of spring seat at one corner, before the car teaches us
+  var KEY = "gt4-corner-balance-v1";
+  var EXAMPLE = {w:{LF:336.5, RF:301.0, LR:411.5, RR:385.0}, rh:{LF:118, RF:120, LR:126, RR:127}};
+
+  var PREP = [
+    ["level", "Level the pads", "Set the four scale pads on the flattest spot you have and check them with a laser or water-tube level. Shim low pads with tiles or aluminium sheet until all four are within 1–2 mm. A high pad reads heavy and loads its diagonal just like a spring-seat change."],
+    ["zero", "Zero the scales", "Switch on, let them warm up, and zero them with nothing on the pads."],
+    ["tyres", "Set tyre pressures", "All four at your usual cold pressures. Tyre pressure changes tyre height, which moves corner weight."],
+    ["fuel", "Set the fuel level", "Fill to the level you usually run and note the litres in Setup. Petrol weighs about 0.74 kg per litre, and the Cayman's tank sits ahead of the cabin, so fuel mostly adds front weight."],
+    ["driver", "Driver in the seat", "Normal driving position, wearing a helmet if they drive in one. If nobody can sit in, put ballast of the same weight on the driver's seat."],
+    ["stuff", "Car as you run it", "Take out loose items and tools. Leave in what you run on track: mats, extinguisher, camera mount."],
+    ["bars", "Disconnect the anti-roll bars", "Undo one end link on the front bar and one on the rear bar so neither bar can hold the chassis twisted while you weigh."],
+    ["roll", "Roll on straight", "Steering straight, neutral, handbrake off, and no chocks touching the pads."],
+    ["settle", "Settle the suspension", "Bounce each corner firmly, or roll off and back on, then wait for the numbers to stop moving. Do this after every adjustment."],
+    ["rh", "Measure ride heights", "Pick one measuring point per corner and use exactly the same point every time. Note it in Setup."],
+    ["repeat", "Check repeatability", "Save a first round with no adjustment, settle again, and save a second. If cross weight moves more than a few kg between them, find out why before you turn anything."]
+  ];
+  var FIN = [
+    ["refit", "Reconnect the anti-roll bars", "Driver in, car settled on the pads. Refit each end link; it should drop on with no force. If the cross weight moves more than about 2 kg as a link goes on, that bar is preloaded. Check left/right ride heights, or adjust the link length if your links are adjustable."],
+    ["final", "Save a final round", "Save one more round with no adjustment so the log holds your finished numbers."],
+    ["torque", "Check lock rings and wheels", "Every spring-seat lock ring tight. If wheels came off, torque the wheel bolts to spec."],
+    ["align", "Check the alignment", "Ride-height changes move toe and camber. Re-check alignment; if that work changes ride heights, weigh again."],
+    ["record", "Record the conditions", "Fuel, tyre pressures and driver weight in Setup, so next time you start from the same state."]
+  ];
+
+  function blank(){ return {LF:null, RF:null, LR:null, RR:null}; }
+  function zeros(){ return {LF:0, RF:0, LR:0, RR:0}; }
+  function fresh(){
+    return {
+      unit:"kg", example:true,
+      cur:{w:Object.assign({}, EXAMPLE.w), rh:Object.assign({}, EXAMPLE.rh)},
+      adj:zeros(), adjDir:{LF:1, RF:1, LR:1, RR:1},
+      rounds:[],
+      set:{mode:"50", custom:"", tol:"", rhF:"", rhR:"", rhRef:"", pitch:"", kf:"", kr:"", sOv:"", driver:"", fuel:"", tpF:"", tpR:""},
+      prep:{}, fin:{}, tab:"balance", wake:false
+    };
+  }
+
+  var state = fresh();
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (raw) {
+      var s = JSON.parse(raw);
+      var d = fresh();
+      state = Object.assign(d, s);
+      state.set = Object.assign(fresh().set, s.set || {});
+      state.cur = {w:Object.assign(blank(), (s.cur && s.cur.w) || {}), rh:Object.assign(blank(), (s.cur && s.cur.rh) || {})};
+      state.adj = Object.assign(zeros(), s.adj || {});
+      state.adjDir = Object.assign({LF:1, RF:1, LR:1, RR:1}, s.adjDir || {});
+      if (!Array.isArray(state.rounds)) state.rounds = [];
+      state.prep = s.prep || {}; state.fin = s.fin || {};
+    }
+  } catch (e) {}
+
+  function persist(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  /* ---------- numbers ---------- */
+  function num(v){
+    if (v == null) return null;
+    var t = String(v).trim().replace(",", ".");
+    if (t === "" || t === "." || t === "-" || t === "+") return null;
+    var n = Number(t);
+    return isFinite(n) ? n : null;
+  }
+  function U(){ return state.unit; }
+  function toKg(v){ return v == null ? null : (state.unit === "lb" ? v * LB : v); }
+  function fromKg(v){ return v == null ? null : (state.unit === "lb" ? v / LB : v); }
+  function fw(kg, dp){ return kg == null ? "–" : fromKg(kg).toFixed(dp == null ? 1 : dp); }
+  function fwu(kg, dp){ return fw(kg, dp) + " " + U(); }
+  function pct(x, dp){ return (x * 100).toFixed(dp == null ? 2 : dp) + "%"; }
+  function signed(v, dp){ var a = Math.abs(v).toFixed(dp == null ? 1 : dp); if (Number(a) === 0) return "0" + (dp === 0 ? "" : "." + "0".repeat(dp == null ? 1 : dp)); return (v > 0 ? "+" : "−") + a; }
+  function r1(v){ return Math.round(v * 10) / 10; }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+
+  function complete(w){ return C.every(function(c){ return w[c] != null && w[c] > 0; }); }
+  function calc(w){
+    if (!w || !complete(w)) return null;
+    var T = w.LF + w.RF + w.LR + w.RR;
+    return {
+      T:T, front:(w.LF + w.RF) / T, left:(w.LF + w.LR) / T,
+      cross:w.RF + w.LR, diag:w.LF + w.RR, crossPct:(w.RF + w.LR) / T,
+      fl:w.LF / (w.LF + w.RF), rl:w.LR / (w.LR + w.RR)
+    };
+  }
+  function targetPct(r){
+    var m = state.set.mode;
+    if (m === "prop") return r.front * (1 - r.left) + (1 - r.front) * r.left;
+    if (m === "custom") { var v = num(state.set.custom); return (v != null && v > 40 && v < 60) ? v / 100 : 0.5; }
+    return 0.5;
+  }
+  function targetName(){ return state.set.mode === "prop" ? "Proportional split" : state.set.mode === "custom" ? "Custom target" : "Equal diagonals"; }
+  function tolPts(){ var v = num(state.set.tol); return (v != null && v > 0 && v < 5) ? v : 0.3; }
+  function sumC(a){ return C.reduce(function(s, c){ return s + XS[c] * ((a && a[c]) || 0); }, 0); }
+  function moved(a){ return C.some(function(c){ return a && Math.abs(a[c] || 0) >= 0.05; }); }
+  function rates(){ var kf = num(state.set.kf), kr = num(state.set.kr); return (kf > 0 && kr > 0) ? {kf:kf, kr:kr} : null; }
+  function median(a){ var s = a.slice().sort(function(x, y){ return x - y; }); var m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+
+  function samples(){
+    var out = [];
+    for (var i = 1; i < state.rounds.length; i++) {
+      var p = state.rounds[i - 1], q = state.rounds[i];
+      var sc = sumC(p.adj);
+      if (Math.abs(sc) < 0.25) continue;
+      var a = calc(p.w), b = calc(q.w);
+      if (!a || !b) continue;
+      var dd = b.cross - a.cross;
+      out.push({i:i, sc:sc, d:dd, s:dd / sc});
+    }
+    return out;
+  }
+  function sens(){
+    var ov = num(state.set.sOv);
+    if (ov > 0) return {S:ov, src:"your fixed value", fixed:true};
+    var good = samples().filter(function(x){ return x.s > 0.3 && x.s < 60; });
+    if (good.length) return {S:median(good.map(function(x){ return x.s; })), src:"learned from your " + (good.length === 1 ? "last adjustment" : good.length + " adjustments"), learned:true, n:good.length};
+    var r = rates();
+    if (r) return {S:(1 / (1 / r.kf + 1 / r.kr)) / G, src:"estimated from your spring rates"};
+    return {S:DEFAULT_S, src:"starting guess", guess:true};
+  }
+
+  /* Rigid chassis on four springs: raising one seat by d loads its diagonal by F = d / sum(1/k) per corner. */
+  function heightDelta(m){
+    var r = rates() || {kf:1, kr:1};
+    var k = {LF:r.kf, RF:r.kf, LR:r.kr, RR:r.kr};
+    var Cc = C.reduce(function(s, c){ return s + 1 / k[c]; }, 0);
+    var d = zeros();
+    Object.keys(m).forEach(function(c){
+      var del = m[c]; if (!del) return;
+      var F = del / Cc;
+      C.forEach(function(o){
+        if (o === c) d[o] += del - F / k[o];
+        else if (o === OPP[c]) d[o] -= F / k[o];
+        else d[o] += F / k[o];
+      });
+    });
+    return d;
+  }
+
+  function pitch(){ var p = num(state.set.pitch); return p > 0 ? p : null; }
+  function turnsTxt(mm){
+    var p = pitch(); if (!p) return "";
+    var t = Math.abs(mm) / p;
+    return "≈ " + t.toFixed(2) + (Math.abs(t - 1) < 0.005 ? " turn" : " turns");
+  }
+
+  /* ---------- pads ---------- */
+  function buildPads(){
+    C.forEach(function(c){
+      var el = $("#pad-" + c);
+      el.innerHTML =
+        '<div class="pad-top"><span class="dot ' + DIAG[c] + '"></span><span class="code">' + c + '</span>' +
+        '<span class="pname">' + NAME[c] + '</span><span class="share" id="sh-' + c + '">–</span></div>' +
+        '<label class="sr" for="w-' + c + '">' + NAME[c] + ' scale reading</label>' +
+        '<div class="w-wrap"><input id="w-' + c + '" class="w-in" inputmode="decimal" autocomplete="off" enterkeyhint="next" data-corner="' + c + '"><span class="w-unit u-label">kg</span></div>' +
+        '<div class="rh-row"><label for="rh-' + c + '">Ride height</label><input id="rh-' + c + '" class="rh-in" inputmode="decimal" autocomplete="off" data-corner="' + c + '"><span>mm</span></div>';
+    });
+    var g = $("#adj-grid");
+    g.innerHTML = C.map(function(c){
+      return '<div class="adj"><div class="adj-top"><span class="code" style="font-size:1.2rem">' + c + '</span>' +
+        '<div class="seg" role="group" aria-label="' + NAME[c] + ' direction">' +
+        '<button type="button" data-dir="1" data-corner="' + c + '" id="up-' + c + '">Raise</button>' +
+        '<button type="button" data-dir="-1" data-corner="' + c + '" id="dn-' + c + '">Lower</button></div></div>' +
+        '<label class="sr" for="adj-' + c + '">' + NAME[c] + ' spring seat move in mm</label>' +
+        '<input id="adj-' + c + '" inputmode="decimal" autocomplete="off" placeholder="0.0" data-corner="' + c + '">' +
+        '<small id="adjt-' + c + '"></small></div>';
+    }).join("");
+  }
+
+  function fillInputs(){
+    var last = state.rounds[state.rounds.length - 1];
+    C.forEach(function(c){
+      var w = state.cur.w[c], h = state.cur.rh[c];
+      var wi = $("#w-" + c), hi = $("#rh-" + c);
+      wi.value = w == null ? "" : fromKg(w).toFixed(1);
+      hi.value = h == null ? "" : String(h);
+      wi.placeholder = last ? fw(last.w[c]) : "0.0";
+      hi.placeholder = (last && last.rh && last.rh[c] != null) ? String(last.rh[c]) : "–";
+    });
+    Object.keys(state.set).forEach(function(k){
+      var el = $("#set-" + k); if (!el) return;
+      if (k === "sOv" || k === "driver") {
+        var v = num(state.set[k]);
+        el.value = v == null ? "" : r1(fromKg(v)).toString();
+      } else el.value = state.set[k];
+    });
+    fillAdj();
+  }
+  function fillAdj(){
+    C.forEach(function(c){
+      var v = state.adj[c] || 0;
+      if (v !== 0) state.adjDir[c] = v > 0 ? 1 : -1;
+      $("#adj-" + c).value = v === 0 ? "" : Math.abs(v).toFixed(1);
+      $("#up-" + c).setAttribute("aria-pressed", state.adjDir[c] > 0 ? "true" : "false");
+      $("#dn-" + c).setAttribute("aria-pressed", state.adjDir[c] < 0 ? "true" : "false");
+    });
+  }
+
+  /* ---------- render ---------- */
+  function render(){
+    var r = calc(state.cur.w);
+    var unitTxt = U();
+    document.querySelectorAll(".u-label").forEach(function(el){ el.textContent = unitTxt; });
+    $("#unit-kg").setAttribute("aria-pressed", state.unit === "kg" ? "true" : "false");
+    $("#unit-lb").setAttribute("aria-pressed", state.unit === "lb" ? "true" : "false");
+    $("#wake").setAttribute("aria-pressed", state.wake ? "true" : "false");
+    $("#example-banner").hidden = !state.example;
+    $("#custom-field").hidden = state.set.mode !== "custom";
+    $("#sOv-label").textContent = "Fixed sensitivity (" + unitTxt + " per mm)";
+    $("#driver-label").textContent = "Driver weight (" + unitTxt + ")";
+
+    var n = state.rounds.length + 1;
+    $("#round-title").textContent = "Round " + n;
+    $("#round-sub").textContent = n === 1 ? "Scale readings with the driver in" : "After the round " + (n - 1) + " change, settled";
+
+    C.forEach(function(c){ $("#sh-" + c).textContent = r ? pct(state.cur.w[c] / r.T, 1) : "–"; });
+    $("#m-front").textContent = r ? pct(r.front, 1) : "–";
+    $("#m-rear").textContent = r ? pct(1 - r.front, 1) : "–";
+    $("#m-left").textContent = r ? pct(r.left, 1) : "–";
+    $("#m-right").textContent = r ? pct(1 - r.left, 1) : "–";
+    $("#m-a").textContent = r ? fwu(r.diag) : "–";
+    $("#m-b").textContent = r ? fwu(r.cross) : "–";
+    drawDiag(r);
+
+    renderSensHelp();
+    renderReadout(r);
+    renderAdvice(r);
+    renderAdjNotes();
+    renderSaveLabel();
+    renderLog();
+    renderChecklists();
+    renderFinal();
+  }
+
+  function drawDiag(r){
+    var plan = $("#plan"), svg = $("#diag");
+    var pr = plan.getBoundingClientRect();
+    if (!pr.width) return;
+    function ctr(c){ var b = $("#pad-" + c).getBoundingClientRect(); return [b.left - pr.left + b.width / 2, b.top - pr.top + b.height / 2]; }
+    svg.setAttribute("viewBox", "0 0 " + pr.width + " " + pr.height);
+    var dev = r ? (r.crossPct - 0.5) * 100 : 0;
+    var wb = 3 + Math.max(-2, Math.min(5, dev * 3)), wa = 3 + Math.max(-2, Math.min(5, -dev * 3));
+    [["line-a", "LF", "RR", "var(--diag-a)", wa], ["line-b", "RF", "LR", "var(--diag-b)", wb]].forEach(function(L){
+      var a = ctr(L[1]), b = ctr(L[2]), el = $("#" + L[0]);
+      el.setAttribute("x1", a[0]); el.setAttribute("y1", a[1]);
+      el.setAttribute("x2", b[0]); el.setAttribute("y2", b[1]);
+      el.setAttribute("stroke", L[3]);
+      el.setAttribute("stroke-width", L[4].toFixed(1));
+      el.setAttribute("stroke-linecap", "round");
+      el.setAttribute("stroke-dasharray", r ? "none" : "4 6");
+      el.style.stroke = L[3];
+    });
+  }
+
+  function renderSensHelp(){
+    var s = sens();
+    var t = "Sensitivity now: " + fw(s.S, 1) + " " + U() + " of cross weight per mm of spring seat at one corner (" + s.src + "). ";
+    if (s.guess) t += "That's a rough starting figure. After your first saved adjustment the app measures the real value for your car.";
+    else if (s.fixed) t += "Clear the fixed value to go back to what the car measures.";
+    else if (s.learned) t += "It updates every time you save a round after an adjustment.";
+    $("#sens-help").textContent = t + " Spring rates are optional; they sharpen the first guess and the ride-height predictions.";
+  }
+
+  function renderReadout(r){
+    var el = $("#readout");
+    if (!r) {
+      el.innerHTML = '<div class="headline"><div><p class="biglabel">Cross weight (RF + LR)</p><p class="big">–</p></div></div>' +
+        '<p class="muted">Enter all four scale readings to see the cross weight and what to adjust.</p>';
+      return;
+    }
+    var t = targetPct(r), tol = tolPts();
+    var devPts = (r.crossPct - t) * 100;
+    var need = t * r.T - r.cross;
+    var ok = Math.abs(devPts) <= tol + 1e-9;
+    var cls = ok ? "good" : (Math.abs(devPts) <= tol * 2 ? "warn" : "bad");
+    var pillTxt = ok ? "On target" : (need > 0 ? fwu(Math.abs(need)) + " short on RF + LR" : fwu(Math.abs(need)) + " too much on RF + LR");
+
+    var span = Math.max(1, Math.abs(devPts) * 1.3, tol * 2.5);
+    var lo = t * 100 - span, hi = t * 100 + span;
+    function pos(x){ return Math.max(0, Math.min(100, (x - lo) / (hi - lo) * 100)); }
+
+    var html =
+      '<div class="headline"><div><p class="biglabel">Cross weight (RF + LR)</p><p class="big">' + pct(r.crossPct) + '</p></div>' +
+      '<div style="display:grid;gap:6px;justify-items:end"><span class="pill ' + cls + '">' + esc(pillTxt) + '</span>' +
+      '<span class="muted" style="font-size:.85rem">Target ' + pct(t) + ' · ' + targetName() + ' · ±' + tol.toFixed(2) + '</span></div></div>' +
+      '<div><div class="gauge" role="img" aria-label="Cross weight ' + pct(r.crossPct) + ' against target ' + pct(t) + '">' +
+      '<div class="g-track"></div>' +
+      '<div class="g-band" style="left:' + pos(t * 100 - tol) + '%;width:' + (pos(t * 100 + tol) - pos(t * 100 - tol)) + '%"></div>' +
+      '<div class="g-target" style="left:' + pos(t * 100) + '%"></div>' +
+      '<div class="g-now" style="left:' + pos(r.crossPct * 100) + '%"></div></div>' +
+      '<div class="g-scale"><span>' + lo.toFixed(2) + '%</span><span>' + (t * 100).toFixed(2) + '%</span><span>' + hi.toFixed(2) + '%</span></div></div>' +
+      '<dl class="stats">' +
+      stat("Total", fwu(r.T)) +
+      stat("Off target", signed(devPts, 2) + " pts") +
+      stat("Front / rear", pct(r.front, 1) + " / " + pct(1 - r.front, 1)) +
+      stat("Left / right", pct(r.left, 1) + " / " + pct(1 - r.left, 1)) +
+      stat("LF + RR", fwu(r.diag)) +
+      stat("RF + LR", fwu(r.cross)) +
+      stat("Front axle, left share", pct(r.fl, 1)) +
+      stat("Rear axle, left share", pct(r.rl, 1)) +
+      '</dl>';
+
+    var notes = [];
+    var last = state.rounds[state.rounds.length - 1];
+    var lr = last ? calc(last.w) : null;
+    if (lr) {
+      var sc = sumC(last.adj);
+      if (Math.abs(sc) >= 0.25) {
+        var s = sens();
+        var actual = r.cross - lr.cross, pred = sc * s.S;
+        var implied = actual / sc;
+        if (implied <= 0) {
+          notes.push(["bad", "Your round " + state.rounds.length + " change should have moved " + signed(fromKg(pred)) + " " + U() + " onto RF + LR, but it moved " + signed(fromKg(actual)) + " " + U() + ". Check that Raise and Lower were recorded the right way round, and that the car settled."]);
+        } else {
+          notes.push(["good", "Last change: predicted " + signed(fromKg(pred)) + " " + U() + " on RF + LR, measured " + signed(fromKg(actual)) + " " + U() + ". That's " + fw(implied) + " " + U() + " per mm on your car; saving this round updates the estimate."]);
+        }
+      }
+      var dT = r.T - lr.T;
+      if (Math.abs(dT) > Math.max(5, lr.T * 0.005)) notes.push(["warn", "Total changed by " + signed(fromKg(dT)) + " " + U() + " since round " + state.rounds.length + ". Spring-seat changes don't change the total, so check fuel, the driver, and the scale zero."]);
+      var dL = (r.left - lr.left) * 100;
+      if (Math.abs(dL) > 0.4) notes.push(["warn", "Left share moved " + signed(dL, 2) + " points since the last round. Spring seats barely change it, so check the driver sits the same way each time."]);
+    }
+    if (notes.length) html += '<div class="notes">' + notes.map(function(n){ return '<p class="note ' + n[0] + '">' + esc(n[1]) + '</p>'; }).join("") + '</div>';
+    el.innerHTML = html;
+  }
+  function stat(k, v){ return '<div><dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd></div>'; }
+
+  var lastOptions = {};
+  function renderAdvice(r){
+    var el = $("#advice");
+    lastOptions = {};
+    if (!r) { el.innerHTML = '<h3>Next adjustment</h3><p class="muted" style="margin-top:6px">Waiting for four readings.</p>'; return; }
+    var t = targetPct(r), tol = tolPts();
+    var need = t * r.T - r.cross;
+    var devPts = (r.crossPct - t) * 100;
+    if (Math.abs(devPts) <= tol + 1e-9) {
+      el.innerHTML = '<h3>No adjustment needed</h3><p style="margin-top:6px">Cross weight is within ±' + tol.toFixed(2) + ' points of the target (' + fwu(Math.abs(need)) + ' away). Save this round with no moves, then go to <b>Finish</b> to reconnect the anti-roll bars.</p>' +
+        '<div class="row" style="margin-top:10px"><button class="btn" type="button" data-goto="finish">Go to Finish</button></div>';
+      return;
+    }
+    var s = sens(), S = s.S;
+    var mm = Math.abs(need) / S, sg = need > 0 ? 1 : -1;
+    function dir(c){ return XS[c] * sg; }
+    var opts = [
+      {key:"front", title:"Split on the front axle", note:"Front axle height stays the same.", moves:{}},
+      {key:"rear", title:"Split on the rear axle", note:"Rear axle height stays the same.", moves:{}}
+    ];
+    opts[0].moves = (sg > 0) ? {RF:mm / 2, LF:-mm / 2} : {LF:mm / 2, RF:-mm / 2};
+    opts[1].moves = (sg > 0) ? {LR:mm / 2, RR:-mm / 2} : {RR:mm / 2, LR:-mm / 2};
+    var singleOrder = sg > 0 ? ["RF", "LR", "LF", "RR"] : ["LF", "RR", "RF", "LR"];
+    singleOrder.forEach(function(c){
+      var m = {}; m[c] = dir(c) * mm;
+      opts.push({key:c, title:(dir(c) > 0 ? "Raise " : "Lower ") + c + " only", note:"One corner, one lock ring.", moves:m});
+    });
+
+    var rh = state.cur.rh, haveRh = C.every(function(c){ return rh[c] != null; });
+    var tF = num(state.set.rhF), tR = num(state.set.rhR);
+    function err(h){
+      if (tF != null || tR != null) {
+        var e = 0;
+        C.forEach(function(c){ var tt = c.charAt(1) === "F" ? tF : tR; if (tt != null) e += Math.pow(h[c] - tt, 2); });
+        return e;
+      }
+      return Math.pow(h.LF - h.RF, 2) + Math.pow(h.LR - h.RR, 2);
+    }
+    var best = null;
+    opts.forEach(function(o){
+      o.dh = heightDelta(o.moves);
+      if (haveRh) {
+        var after = {}; C.forEach(function(c){ after[c] = rh[c] + o.dh[c]; });
+        o.err = err(after);
+        if (best == null || o.err < best.err - 1e-9) best = o;
+      }
+      lastOptions[o.key] = o;
+    });
+
+    var head = '<div class="roundhead"><h3>Move ' + fwu(Math.abs(need)) + (need > 0 ? ' onto RF + LR' : ' onto LF + RR') + '</h3>' +
+      '<span class="muted">Using ' + fw(S) + ' ' + U() + ' per mm, ' + esc(s.src) + '</span></div>';
+    var sub = '<p class="help" style="margin-block:6px 12px">' +
+      (need > 0 ? 'Raise RF or LR, or lower LF or RR.' : 'Raise LF or RR, or lower RF or LR.') +
+      ' Any of these gets the cross weight to target. ' +
+      (haveRh ? (tF != null || tR != null ? 'The highlighted plan keeps ride heights closest to your targets.' : 'The highlighted plan keeps the car most level side to side.') : 'Enter ride heights on all four pads and the app will pick the plan that suits them best.') +
+      (s.guess ? ' The amounts use a starting guess, so the first move may undershoot or overshoot. That first result calibrates the rest.' : '') + '</p>';
+    var warn = mm > 8 ? '<p class="note warn" style="margin-bottom:12px">That is a big move. Before turning anything, re-check that the pads are level, the bars are disconnected and the car has settled.</p>' : '';
+
+    var cards = opts.map(function(o){
+      var lines = Object.keys(o.moves).map(function(c){
+        var v = o.moves[c];
+        return '<li><span class="mv">' + (v > 0 ? "Raise " : "Lower ") + c + '</span><span class="amt">' + Math.abs(v).toFixed(1) + ' mm</span><span class="muted">' + turnsTxt(v) + '</span></li>';
+      }).join("");
+      var dh = C.filter(function(c){ return Math.abs(o.dh[c]) >= 0.05; }).map(function(c){ return c + " " + signed(o.dh[c]); }).join(", ");
+      var isBest = best && o === best;
+      return '<div class="opt' + (isBest ? " best" : "") + '"><div class="opt-head"><h4>' + esc(o.title) + '</h4>' + (isBest ? '<span class="tag">Best for ride heights</span>' : '') + '</div>' +
+        '<ul class="moves">' + lines + '</ul>' +
+        '<p class="opt-note">' + esc(o.note) + (dh ? ' Ride heights ≈ ' + esc(dh) + ' mm.' : '') + '</p>' +
+        '<div><button class="btn small" type="button" data-plan="' + o.key + '">Use this plan</button></div></div>';
+    }).join("");
+    el.innerHTML = head + sub + warn + '<div class="opts">' + cards + '</div>';
+  }
+
+  function renderAdjNotes(){
+    var s = sens();
+    C.forEach(function(c){
+      var v = state.adj[c] || 0;
+      var t = "";
+      if (Math.abs(v) >= 0.05) {
+        var eff = XS[c] * v * s.S;
+        t = (turnsTxt(v) ? turnsTxt(v) + " · " : "") + signed(fromKg(eff)) + " " + U() + " on RF + LR";
+      }
+      $("#adjt-" + c).textContent = t;
+    });
+  }
+  function renderSaveLabel(){
+    var n = state.rounds.length + 1;
+    $("#save-round").textContent = moved(state.adj) ? "Save round " + n + " and this adjustment" : "Save round " + n + " (no adjustment)";
+  }
+
+  function adjText(a){
+    if (!moved(a)) return "—";
+    return C.filter(function(c){ return Math.abs(a[c] || 0) >= 0.05; }).map(function(c){
+      return (a[c] > 0 ? "Raise " : "Lower ") + c + " " + Math.abs(a[c]).toFixed(1) + " mm";
+    }).join(", ");
+  }
+
+  function renderLog(){
+    var body = $("#log-body"), learn = $("#log-learn");
+    var R = state.rounds;
+    if (!R.length) {
+      body.innerHTML = '<div class="tablewrap"><p class="empty">No rounds saved yet. On the Balance tab, enter the four readings and tap Save round.</p></div>';
+    } else {
+      var s = sens();
+      var rows = R.map(function(rd, i){
+        var c = calc(rd.w), prev = i > 0 ? calc(R[i - 1].w) : null;
+        var res = "";
+        if (prev && c) {
+          var d = c.cross - prev.cross;
+          res = signed(fromKg(d));
+          var sc = sumC(R[i - 1].adj);
+          if (Math.abs(sc) >= 0.25) res += ' <span class="muted">(pred ' + signed(fromKg(sc * s.S)) + ')</span>';
+        }
+        var t = c ? targetPct(c) : 0.5;
+        return '<tr><td>' + (i + 1) + '</td>' +
+          C.map(function(k){ return '<td>' + fw(rd.w[k]) + '</td>'; }).join("") +
+          '<td>' + (c ? fw(c.T) : "–") + '</td><td>' + (c ? pct(c.front, 1) : "–") + '</td><td>' + (c ? pct(c.left, 1) : "–") + '</td>' +
+          '<td><b>' + (c ? pct(c.crossPct) : "–") + '</b></td><td>' + (c ? signed((c.crossPct - t) * 100, 2) : "–") + '</td>' +
+          '<td>' + (res || "—") + '</td><td class="adjcell">' + esc(adjText(rd.adj)) + '</td></tr>';
+      }).join("");
+      body.innerHTML = '<div class="tablewrap"><table><thead><tr><th>Rnd</th><th>LF</th><th>RF</th><th>LR</th><th>RR</th><th>Total</th><th>Front</th><th>Left</th><th>Cross</th><th>vs target</th><th>Δ RF+LR</th><th>Then changed</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        '<p class="help">Weights in ' + U() + '. “Δ RF+LR” is how much the cross diagonal moved since the round before, with the app\'s prediction in brackets.</p>';
+    }
+
+    var smp = samples(), s2 = sens();
+    var lines = [];
+    var good = smp.filter(function(x){ return x.s > 0.3 && x.s < 60; });
+    if (good.length) lines.push("<p><b>Your car:</b> " + fw(s2.learned ? s2.S : median(good.map(function(x){ return x.s; }))) + " " + U() + " of cross weight per mm of spring seat at one corner, from " + good.length + " adjustment" + (good.length > 1 ? "s" : "") + ".</p>");
+    else lines.push("<p><b>Sensitivity:</b> not measured yet. Save a round, make a change, then save the next round, and the app will work it out.</p>");
+    if (smp.length > good.length) lines.push('<p class="note warn">' + (smp.length - good.length) + " adjustment" + (smp.length - good.length > 1 ? "s" : "") + " moved weight the wrong way or by an implausible amount and were left out. Check the Raise/Lower entries in those rounds.</p>");
+    var rep = [];
+    for (var i = 1; i < R.length; i++) {
+      if (!moved(R[i - 1].adj)) { var a = calc(R[i - 1].w), b = calc(R[i].w); if (a && b) rep.push(Math.abs(b.cross - a.cross)); }
+    }
+    if (rep.length) {
+      var mx = Math.max.apply(null, rep);
+      lines.push('<p><b>Repeatability:</b> with no adjustment, RF + LR moved up to ' + fwu(mx) + ' between readings. ' + (mx > 4 ? "That's a lot of scatter; settle the car more consistently before trusting small changes." : "Good enough to trust small changes.") + '</p>');
+    } else {
+      lines.push("<p><b>Repeatability:</b> not checked yet. Save two rounds back to back with no adjustment to see how much the readings scatter.</p>");
+    }
+    learn.innerHTML = lines.join("");
+    $("#undo-round").disabled = !R.length;
+  }
+
+  function renderChecklists(){
+    [["prep", PREP, "#prep-list", "#prep-progress"], ["fin", FIN, "#fin-list", "#fin-progress"]].forEach(function(L){
+      var key = L[0], items = L[1], list = $(L[2]);
+      if (!list.dataset.built) {
+        list.innerHTML = items.map(function(it){
+          return '<li data-id="' + it[0] + '"><input type="checkbox" id="' + key + '-' + it[0] + '" data-list="' + key + '" data-id="' + it[0] + '">' +
+            '<label for="' + key + '-' + it[0] + '"><span class="t">' + esc(it[1]) + '</span><span class="d">' + esc(it[2]) + '</span></label></li>';
+        }).join("");
+        list.dataset.built = "1";
+      }
+      var done = 0;
+      items.forEach(function(it){
+        var on = !!state[key][it[0]];
+        if (on) done++;
+        var cb = $("#" + key + "-" + it[0]);
+        cb.checked = on;
+        cb.closest("li").classList.toggle("done", on);
+      });
+      $(L[3]).textContent = done + " of " + items.length + " done";
+    });
+  }
+
+  function renderFinal(){
+    var el = $("#final-card");
+    var R = state.rounds, last = R[R.length - 1];
+    var c = last ? calc(last.w) : null;
+    if (!c) { el.innerHTML = '<h3>Final numbers</h3><p class="muted">Save at least one round on the Balance tab and your final numbers will show here.</p>'; return; }
+    var t = targetPct(c), ok = Math.abs((c.crossPct - t) * 100) <= tolPts() + 1e-9;
+    el.innerHTML = '<div class="roundhead"><h3>Final numbers · round ' + R.length + '</h3><span class="pill ' + (ok ? "good" : "warn") + '">' + (ok ? "Within tolerance" : "Outside tolerance") + '</span></div>' +
+      '<dl class="stats">' +
+      C.map(function(k){ return stat(k, fwu(last.w[k])); }).join("") +
+      stat("Total", fwu(c.T)) + stat("Cross (RF + LR)", pct(c.crossPct)) +
+      stat("Front / rear", pct(c.front, 1) + " / " + pct(1 - c.front, 1)) + stat("Left / right", pct(c.left, 1) + " / " + pct(1 - c.left, 1)) +
+      '</dl>';
+  }
+
+  /* ---------- summary text ---------- */
+  function summary(){
+    var R = state.rounds, out = [];
+    var dt = new Date();
+    out.push("Porsche Cayman GT4 corner balance, " + dt.toLocaleDateString(undefined, {day:"numeric", month:"short", year:"numeric"}));
+    var last = R[R.length - 1], c = last ? calc(last.w) : null;
+    if (c) {
+      out.push("Final (round " + R.length + "): LF " + fw(last.w.LF) + "  RF " + fw(last.w.RF) + "  LR " + fw(last.w.LR) + "  RR " + fw(last.w.RR) + " " + U());
+      out.push("Total " + fwu(c.T) + " | Front " + pct(c.front, 1) + " | Left " + pct(c.left, 1) + " | Cross (RF+LR) " + pct(c.crossPct) + " vs target " + pct(targetPct(c)) + " (" + targetName() + ")");
+      if (last.rh && C.every(function(k){ return last.rh[k] != null; })) out.push("Ride heights (mm): LF " + last.rh.LF + "  RF " + last.rh.RF + "  LR " + last.rh.LR + "  RR " + last.rh.RR + (state.set.rhRef ? " (" + state.set.rhRef + ")" : ""));
+    } else out.push("No rounds saved yet.");
+    var cond = [];
+    if (num(state.set.driver) != null) cond.push("driver " + fwu(num(state.set.driver)));
+    if (num(state.set.fuel) != null) cond.push("fuel " + num(state.set.fuel) + " L");
+    if (num(state.set.tpF) != null || num(state.set.tpR) != null) cond.push("tyres " + (state.set.tpF || "?") + " / " + (state.set.tpR || "?") + " bar cold");
+    if (cond.length) out.push("Conditions: " + cond.join(", "));
+    var s = sens(); if (s.learned) out.push("Sensitivity: " + fw(s.S) + " " + U() + " cross weight per mm of spring seat");
+    if (R.length) {
+      out.push(""); out.push("Rounds:");
+      R.forEach(function(rd, i){
+        var cc = calc(rd.w);
+        out.push((i + 1) + ". LF " + fw(rd.w.LF) + " RF " + fw(rd.w.RF) + " LR " + fw(rd.w.LR) + " RR " + fw(rd.w.RR) + " | cross " + (cc ? pct(cc.crossPct) : "–") + " | then: " + adjText(rd.adj));
+      });
+    }
+    return out.join("\n");
+  }
+  function copyText(msgSel){
+    var txt = summary(), box = $("#copybox"), msg = $(msgSel);
+    function fallback(){
+      box.hidden = false; box.value = txt; box.focus(); box.select();
+      msg.className = "msg"; msg.textContent = "Copy didn't go through here. The summary is selected below; copy it from there.";
+      if (msgSel !== "#log-msg") switchTab("log");
+    }
+    try {
+      navigator.clipboard.writeText(txt).then(function(){ msg.className = "msg ok"; msg.textContent = "Summary copied."; }, fallback);
+    } catch (e) { fallback(); }
+  }
+
+  /* ---------- tabs ---------- */
+  function switchTab(t){
+    state.tab = t;
+    ["prep", "balance", "log", "finish"].forEach(function(k){
+      $("#p-" + k).hidden = k !== t;
+      $("#t-" + k).setAttribute("aria-selected", k === t ? "true" : "false");
+    });
+    persist();
+    if (t === "balance") requestAnimationFrame(function(){ drawDiag(calc(state.cur.w)); });
+  }
+
+  /* ---------- wake lock ---------- */
+  var lock = null;
+  function requestWake(silent){
+    if (!("wakeLock" in navigator)) { if (!silent) { state.wake = false; flash("#save-msg", "This browser can't keep the screen on. Lengthen your phone's auto-lock instead.", false); } render(); return; }
+    navigator.wakeLock.request("screen").then(function(l){
+      lock = l; l.addEventListener("release", function(){ lock = null; });
+    }, function(){ if (!silent) { state.wake = false; persist(); render(); flash("#save-msg", "The screen couldn't be kept on here. Lengthen your phone's auto-lock instead.", false); } });
+  }
+  document.addEventListener("visibilitychange", function(){ if (state.wake && document.visibilityState === "visible" && !lock) requestWake(true); });
+
+  function flash(sel, txt, ok){ var m = $(sel); m.className = "msg " + (ok ? "ok" : "err"); m.textContent = txt; }
+
+  /* ---------- events ---------- */
+  function clearExample(){
+    state.example = false;
+    state.cur = {w:blank(), rh:blank()};
+    fillInputs(); render(); persist();
+  }
+
+  document.addEventListener("focusin", function(e){
+    var t = e.target;
+    if (state.example && t.matches && (t.matches(".w-in") || t.matches(".rh-in"))) {
+      var id = t.id; clearExample();
+      var el = document.getElementById(id); if (el) el.focus();
+    }
+  });
+
+  document.addEventListener("input", function(e){
+    var t = e.target, c = t.dataset && t.dataset.corner;
+    if (t.classList.contains("w-in")) { var v = num(t.value); state.cur.w[c] = v == null ? null : toKg(v); }
+    else if (t.classList.contains("rh-in")) { state.cur.rh[c] = num(t.value); }
+    else if (t.id && t.id.indexOf("adj-") === 0) { var a = num(t.value); state.adj[c] = a == null ? 0 : state.adjDir[c] * Math.abs(a); }
+    else if (t.id && t.id.indexOf("set-") === 0) {
+      var k = t.id.slice(4);
+      if (k === "sOv" || k === "driver") { var vv = num(t.value); state.set[k] = vv == null ? "" : String(toKg(vv)); }
+      else state.set[k] = t.value;
+    } else if (t.type === "checkbox" && t.dataset.list) {
+      state[t.dataset.list][t.dataset.id] = t.checked;
+    } else return;
+    persist(); render();
+  });
+  document.addEventListener("change", function(e){
+    var t = e.target;
+    if (t.id === "set-mode") { state.set.mode = t.value; persist(); render(); }
+  });
+
+  var clearArm = 0;
+  document.addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.tab) { switchTab(b.dataset.tab); return; }
+    if (b.dataset.goto) { switchTab(b.dataset.goto); window.scrollTo({top:0}); return; }
+    if (b.id === "unit-kg" || b.id === "unit-lb") { state.unit = b.id === "unit-kg" ? "kg" : "lb"; fillInputs(); render(); persist(); return; }
+    if (b.id === "wake") {
+      state.wake = !state.wake; persist();
+      if (state.wake) requestWake(false); else if (lock) { try { lock.release(); } catch (er) {} lock = null; }
+      render(); return;
+    }
+    if (b.id === "clear-example") { clearExample(); var f = $("#w-LF"); if (f) f.focus(); return; }
+    if (b.dataset.dir) {
+      var c = b.dataset.corner, dd = Number(b.dataset.dir);
+      state.adjDir[c] = dd; state.adj[c] = dd * Math.abs(state.adj[c] || 0);
+      fillAdj(); persist(); render(); return;
+    }
+    if (b.dataset.plan) {
+      var o = lastOptions[b.dataset.plan]; if (!o) return;
+      state.adj = zeros();
+      Object.keys(o.moves).forEach(function(k){ state.adj[k] = r1(o.moves[k]); if (state.adj[k] === 0) state.adj[k] = o.moves[k] > 0 ? 0.1 : -0.1; });
+      fillAdj(); persist(); render();
+      $("#adjust-panel").scrollIntoView({behavior:"smooth", block:"start"});
+      flash("#save-msg", "Plan filled in. Save the round, then make the change.", true);
+      return;
+    }
+    if (b.id === "clear-adj") { state.adj = zeros(); fillAdj(); persist(); render(); return; }
+    if (b.id === "save-round") {
+      if (!complete(state.cur.w)) { flash("#save-msg", "Enter all four scale readings before saving.", false); return; }
+      var rd = {t:Date.now(), w:Object.assign({}, state.cur.w), rh:Object.assign({}, state.cur.rh), adj:Object.assign({}, state.adj)};
+      var hadMove = moved(state.adj);
+      state.rounds.push(rd);
+      state.example = false;
+      state.cur = {w:blank(), rh:blank()};
+      state.adj = zeros();
+      fillInputs(); render(); persist();
+      flash("#save-msg", "Round " + state.rounds.length + " saved. " + (hadMove ? "Make the change, settle the car, then enter the new readings above." : "Settle the car and enter the next readings above."), true);
+      $("#plan").scrollIntoView({behavior:"smooth", block:"start"});
+      return;
+    }
+    if (b.id === "copy-log") { copyText("#log-msg"); return; }
+    if (b.id === "copy-final") { copyText("#fin-msg"); return; }
+    if (b.id === "undo-round") {
+      if (!state.rounds.length) return;
+      var gone = state.rounds.pop();
+      state.cur = {w:Object.assign({}, gone.w), rh:Object.assign(blank(), gone.rh || {})};
+      state.adj = Object.assign(zeros(), gone.adj || {});
+      fillInputs(); render(); persist();
+      flash("#log-msg", "Round " + (state.rounds.length + 1) + " deleted. Its readings are back on the Balance tab.", true);
+      return;
+    }
+    if (b.id === "clear-all") {
+      if (Date.now() - clearArm > 4000) { clearArm = Date.now(); b.textContent = "Tap again to clear"; setTimeout(function(){ b.textContent = "Clear everything"; }, 4000); return; }
+      clearArm = 0;
+      var keepUnit = state.unit;
+      state = fresh(); state.unit = keepUnit; state.example = false; state.cur = {w:blank(), rh:blank()};
+      $("#prep-list").dataset.built = ""; $("#fin-list").dataset.built = "";
+      fillInputs(); render(); persist(); switchTab("log");
+      b.textContent = "Clear everything";
+      flash("#log-msg", "Everything cleared.", true);
+      return;
+    }
+  });
+
+  /* ---------- boot ---------- */
+  buildPads();
+  fillInputs();
+  switchTab(state.tab || "balance");
+  render();
+  if (state.wake) requestWake(true);
+  if ("ResizeObserver" in window) new ResizeObserver(function(){ drawDiag(calc(state.cur.w)); }).observe($("#plan"));
+  else window.addEventListener("resize", function(){ drawDiag(calc(state.cur.w)); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ drawDiag(calc(state.cur.w)); });
+})();
+</script>
+</body>
+</html>
