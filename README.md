@@ -7,6 +7,8 @@ A one-page tool for corner weighting a Porsche Cayman GT4 on four scale pads.
 - **Log:** every round and the adjustment made after it. After the first adjustment the page measures how many kg of cross weight one millimetre of spring seat moves on your car and uses that for later suggestions.
 - **Finish:** reconnect the anti-roll bars, save a final round, check lock rings, wheel torque and alignment.
 
-Everything runs in the browser. Readings are kept only in that browser's local storage; use **Copy summary** to keep a record.
+- **Cars:** keep several cars on one phone. Each has its own targets, settings, rounds, past sessions and learned spring sensitivity. **Start new session** files the finished rounds under Past sessions and keeps the car's settings.
+
+Everything runs in the browser. Data is kept only in that browser's local storage, which phones can clear, so use **Manage cars → Copy backup** after each session (paste it back with **Restore**), and **Copy summary** for a readable record.
 
 Live page: https://soccs.github.io/gt4-corner-balance/

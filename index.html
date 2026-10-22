@@ -15,7 +15,7 @@ img{max-width:100%}
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Saira+Condensed:wght@600;700&display=swap">
 <style>
-/* Layout: one-column pit board. Sticky step tabs, a plan view of the car with four scale pads, then the readout and the next spring-seat move. */
+/* Layout: one-column pit board. Car switcher, sticky step tabs, a plan view of the car with four scale pads, then the readout and the next spring-seat move. */
 :root{
   --bg:#E7EAEE; --surface:#FFFFFF; --surface-2:#F2F4F7; --ink:#14171B; --muted:#58626D; --line:#C9D0D8;
   --accent:#F4B400; --accent-ink:#1B1500;
@@ -47,7 +47,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 h1,h2,h3,h4{font-family:var(--font-display);font-weight:700;line-height:1.05;margin:0;text-wrap:balance;letter-spacing:.01em}
 p{margin:0}
 button{font:inherit;color:inherit}
-input,select{font:inherit;color:var(--ink)}
+input,select,textarea{font:inherit;color:var(--ink)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 .muted{color:var(--muted)}
@@ -55,7 +55,7 @@ input,select{font:inherit;color:var(--ink)}
 
 /* Header */
 .top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 16px;margin-bottom:14px}
-.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);overflow-wrap:anywhere}
 h1{font-size:2.5rem;text-transform:uppercase}
 .tools{display:flex;gap:8px;flex-wrap:wrap}
 .seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
@@ -63,6 +63,22 @@ h1{font-size:2.5rem;text-transform:uppercase}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
 .chipbtn{border:1px solid var(--line);background:var(--surface-2);border-radius:9px;padding:6px 11px;font-size:.85rem;font-weight:600;cursor:pointer;color:var(--muted)}
 .chipbtn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+/* Car switcher */
+.carbar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.carbar-label{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.carbar select{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 10px;font-weight:600}
+.garage{display:grid;gap:14px;margin-bottom:14px}
+.carlist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.carlist li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--surface-2)}
+.carlist li.active{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.carname{width:100%;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 9px;font-weight:600}
+.carmeta{grid-column:1/-1;font-size:.8rem;color:var(--muted)}
+.caractions{display:flex;gap:6px}
+.addcar{display:flex;gap:8px;flex-wrap:wrap}
+.addcar input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;padding:9px 10px}
+details.backup summary{cursor:pointer;font-weight:600}
+.backup-body{display:grid;gap:10px;margin-top:10px}
 
 /* Tabs */
 .tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:8px;margin-bottom:14px}
@@ -197,9 +213,15 @@ th:first-child,td:first-child{text-align:left}
 td.adjcell{text-align:left;font-family:var(--font-body);white-space:normal;min-width:150px}
 tr:last-child td{border-bottom:0}
 .empty{padding:22px 16px;text-align:center;color:var(--muted)}
-textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);font-family:var(--font-mono);font-size:.8rem;padding:10px}
+textarea.copybox{width:100%;min-height:160px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);font-family:var(--font-mono);font-size:.8rem;padding:10px}
 .kv{display:grid;gap:6px}
 .kv p{font-size:.92rem}
+.histlist{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.histlist li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding:10px 2px;border-bottom:1px solid var(--line)}
+.histlist li:last-child{border-bottom:0}
+.histlist .hd{font-weight:600}
+.histlist .hv{font-family:var(--font-mono);font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;grid-column:1}
+.histlist button{grid-row:1/3;grid-column:2}
 
 @media (max-width:420px){
   h1{font-size:2.1rem}
@@ -217,7 +239,7 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
 <div class="app">
   <header class="top">
     <div>
-      <p class="eyebrow">Porsche Cayman GT4</p>
+      <p class="eyebrow" id="car-eyebrow">Porsche Cayman GT4</p>
       <h1>Corner Balance</h1>
     </div>
     <div class="tools">
@@ -228,6 +250,39 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
       <button type="button" class="chipbtn" id="wake" aria-pressed="false">Keep screen on</button>
     </div>
   </header>
+
+  <div class="carbar">
+    <label class="carbar-label" for="car-select">Car</label>
+    <select id="car-select"></select>
+    <button class="btn small" type="button" id="manage-cars" aria-expanded="false" aria-controls="garage">Manage cars</button>
+  </div>
+
+  <div class="panel garage" id="garage" hidden>
+    <div class="roundhead">
+      <h3>Cars on this phone</h3>
+      <span class="muted" id="car-count"></span>
+    </div>
+    <p class="help">Each car keeps its own targets, settings, rounds, past sessions and what the app has learned about its springs. Rename a car by editing its name.</p>
+    <ul class="carlist" id="car-list"></ul>
+    <form class="addcar" id="add-car-form">
+      <label class="sr" for="new-car-name">New car name</label>
+      <input id="new-car-name" autocomplete="off" placeholder="Name, e.g. Rui's 718 GT4">
+      <button class="btn primary" type="submit">Add car</button>
+    </form>
+    <details class="backup">
+      <summary>Back up, or move cars to another phone</summary>
+      <div class="backup-body">
+        <p class="help">Everything is saved in this browser on this phone only. Phones can clear saved website data, Safari especially for sites you haven't opened in a while, so copy a backup after each session and keep it in your notes or email. To restore, paste a backup into the box and tap Restore.</p>
+        <div class="row">
+          <button class="btn" type="button" id="copy-backup">Copy backup</button>
+          <button class="btn" type="button" id="restore-backup">Restore from box</button>
+        </div>
+        <label class="sr" for="backup-box">Backup text</label>
+        <textarea class="copybox" id="backup-box" placeholder="Paste a backup here to restore it"></textarea>
+      </div>
+    </details>
+    <p class="msg" id="garage-msg" role="status" aria-live="polite"></p>
+  </div>
 
   <nav class="tabs" aria-label="Steps">
     <div class="tabs-inner" role="tablist">
@@ -265,7 +320,7 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
       </div>
 
       <details class="panel setup" id="setup">
-        <summary>Setup &amp; targets</summary>
+        <summary id="setup-summary">Setup &amp; targets</summary>
         <div class="setup-body">
           <div class="fgroup">
             <h4>Target</h4>
@@ -364,16 +419,18 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
 
     <!-- LOG -->
     <section role="tabpanel" id="p-log" aria-labelledby="t-log" hidden>
-      <p class="lede">Every saved round, what you changed after it, and what that change did. The app uses these results to learn how much weight one millimetre of spring seat moves on your car.</p>
+      <p class="lede">This session's rounds for the selected car, what you changed after each one, and what that change did. The app uses these results, plus this car's past sessions, to learn how much weight one millimetre of spring seat moves.</p>
       <div id="log-body"></div>
       <div class="panel kv" id="log-learn"></div>
       <div class="row">
         <button class="btn primary" type="button" id="copy-log">Copy summary</button>
+        <button class="btn" type="button" id="new-session">Start new session</button>
         <button class="btn" type="button" id="undo-round">Delete last round</button>
-        <button class="btn danger" type="button" id="clear-all">Clear everything</button>
+        <button class="btn danger" type="button" id="discard-session">Discard this session</button>
       </div>
       <p class="msg" id="log-msg" role="status" aria-live="polite"></p>
       <textarea class="copybox" id="copybox" readonly hidden aria-label="Summary text"></textarea>
+      <div class="panel" id="history"></div>
     </section>
 
     <!-- FINISH -->
@@ -399,7 +456,7 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
   var DIAG = {LF:"a", RR:"a", RF:"b", LR:"b"};
   var LB = 0.45359237, G = 9.80665;
   var DEFAULT_S = 7;                           // kg of cross weight per mm of spring seat at one corner, before the car teaches us
-  var KEY = "gt4-corner-balance-v1";
+  var KEY = "gt4-corner-balance-v2", OLD_KEY = "gt4-corner-balance-v1";
   var EXAMPLE = {w:{LF:336.5, RF:301.0, LR:411.5, RR:385.0}, rh:{LF:118, RF:120, LR:126, RR:127}};
 
   var PREP = [
@@ -420,39 +477,78 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     ["final", "Save a final round", "Save one more round with no adjustment so the log holds your finished numbers."],
     ["torque", "Check lock rings and wheels", "Every spring-seat lock ring tight. If wheels came off, torque the wheel bolts to spec."],
     ["align", "Check the alignment", "Ride-height changes move toe and camber. Re-check alignment; if that work changes ride heights, weigh again."],
-    ["record", "Record the conditions", "Fuel, tyre pressures and driver weight in Setup, so next time you start from the same state."]
+    ["record", "Record the conditions", "Fuel, tyre pressures and driver weight in Setup, so next time you start from the same state."],
+    ["close", "Close the session", "On the Log tab, copy the summary, then tap Start new session. The rounds move to Past sessions and this car's settings stay for next time. Copy a backup from Manage cars too."]
   ];
 
   function blank(){ return {LF:null, RF:null, LR:null, RR:null}; }
   function zeros(){ return {LF:0, RF:0, LR:0, RR:0}; }
-  function fresh(){
+  function ones(){ return {LF:1, RF:1, LR:1, RR:1}; }
+  function freshSet(){ return {mode:"50", custom:"", tol:"", rhF:"", rhR:"", rhRef:"", pitch:"", kf:"", kr:"", sOv:"", driver:"", fuel:"", tpF:"", tpR:""}; }
+  function uid(){ return "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function newCar(name, example){
     return {
-      unit:"kg", example:true,
-      cur:{w:Object.assign({}, EXAMPLE.w), rh:Object.assign({}, EXAMPLE.rh)},
-      adj:zeros(), adjDir:{LF:1, RF:1, LR:1, RR:1},
-      rounds:[],
-      set:{mode:"50", custom:"", tol:"", rhF:"", rhR:"", rhRef:"", pitch:"", kf:"", kr:"", sOv:"", driver:"", fuel:"", tpF:"", tpR:""},
-      prep:{}, fin:{}, tab:"balance", wake:false
+      id:uid(), name:name, example:!!example,
+      cur: example ? {w:Object.assign({}, EXAMPLE.w), rh:Object.assign({}, EXAMPLE.rh)} : {w:blank(), rh:blank()},
+      adj:zeros(), adjDir:ones(), rounds:[], set:freshSet(), prep:{}, fin:{}, history:[]
     };
   }
+  function isNum(v){ return typeof v === "number" && isFinite(v); }
+  function normRound(r){
+    if (!r || !r.w || !C.every(function(k){ return isNum(r.w[k]); })) return null;
+    return {t:isNum(r.t) ? r.t : Date.now(), w:Object.assign({}, r.w), rh:Object.assign(blank(), r.rh || {}), adj:Object.assign(zeros(), r.adj || {})};
+  }
+  function normRounds(a){ return Array.isArray(a) ? a.map(normRound).filter(Boolean) : []; }
+  function normCar(c){
+    var n = newCar("Car", false);
+    if (!c || typeof c !== "object") return n;
+    if (c.id) n.id = String(c.id);
+    n.name = (c.name && String(c.name).trim()) || "Car";
+    n.example = !!c.example;
+    n.cur = {w:Object.assign(blank(), (c.cur && c.cur.w) || {}), rh:Object.assign(blank(), (c.cur && c.cur.rh) || {})};
+    n.adj = Object.assign(zeros(), c.adj || {});
+    n.adjDir = Object.assign(ones(), c.adjDir || {});
+    n.rounds = normRounds(c.rounds);
+    n.set = Object.assign(freshSet(), c.set || {});
+    n.prep = (c.prep && typeof c.prep === "object") ? c.prep : {};
+    n.fin = (c.fin && typeof c.fin === "object") ? c.fin : {};
+    n.history = Array.isArray(c.history) ? c.history.map(function(h){
+      return (h && Array.isArray(h.rounds)) ? {t:isNum(h.t) ? h.t : Date.now(), rounds:normRounds(h.rounds)} : null;
+    }).filter(function(h){ return h && h.rounds.length; }) : [];
+    return n;
+  }
 
-  var state = fresh();
+  /* ---------- load: v2 (several cars), else migrate v1 (one car), else first run ---------- */
+  var app = null;
   try {
     var raw = localStorage.getItem(KEY);
     if (raw) {
-      var s = JSON.parse(raw);
-      var d = fresh();
-      state = Object.assign(d, s);
-      state.set = Object.assign(fresh().set, s.set || {});
-      state.cur = {w:Object.assign(blank(), (s.cur && s.cur.w) || {}), rh:Object.assign(blank(), (s.cur && s.cur.rh) || {})};
-      state.adj = Object.assign(zeros(), s.adj || {});
-      state.adjDir = Object.assign({LF:1, RF:1, LR:1, RR:1}, s.adjDir || {});
-      if (!Array.isArray(state.rounds)) state.rounds = [];
-      state.prep = s.prep || {}; state.fin = s.fin || {};
+      var s2 = JSON.parse(raw);
+      if (s2 && Array.isArray(s2.cars) && s2.cars.length) {
+        app = {unit:s2.unit === "lb" ? "lb" : "kg", wake:!!s2.wake, tab:s2.tab || "balance", activeId:s2.activeId, cars:s2.cars.map(normCar)};
+      }
     }
   } catch (e) {}
+  if (!app) {
+    try {
+      var old = localStorage.getItem(OLD_KEY);
+      if (old) {
+        var o = JSON.parse(old);
+        var mig = normCar(Object.assign({}, o, {name:"My GT4"}));
+        app = {unit:o.unit === "lb" ? "lb" : "kg", wake:!!o.wake, tab:o.tab || "balance", activeId:mig.id, cars:[mig]};
+      }
+    } catch (e) {}
+  }
+  if (!app) { var first = newCar("My GT4", true); app = {unit:"kg", wake:false, tab:"balance", activeId:first.id, cars:[first]}; }
 
-  function persist(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function activeCar(){
+    var c = app.cars.filter(function(x){ return x.id === app.activeId; })[0];
+    if (!c) { c = app.cars[0]; app.activeId = c.id; }
+    return c;
+  }
+  var state = activeCar();
+
+  function persist(){ try { localStorage.setItem(KEY, JSON.stringify(app)); } catch (e) {} }
 
   /* ---------- numbers ---------- */
   function num(v){
@@ -462,15 +558,16 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     var n = Number(t);
     return isFinite(n) ? n : null;
   }
-  function U(){ return state.unit; }
-  function toKg(v){ return v == null ? null : (state.unit === "lb" ? v * LB : v); }
-  function fromKg(v){ return v == null ? null : (state.unit === "lb" ? v / LB : v); }
+  function U(){ return app.unit; }
+  function toKg(v){ return v == null ? null : (app.unit === "lb" ? v * LB : v); }
+  function fromKg(v){ return v == null ? null : (app.unit === "lb" ? v / LB : v); }
   function fw(kg, dp){ return kg == null ? "–" : fromKg(kg).toFixed(dp == null ? 1 : dp); }
   function fwu(kg, dp){ return fw(kg, dp) + " " + U(); }
   function pct(x, dp){ return (x * 100).toFixed(dp == null ? 2 : dp) + "%"; }
-  function signed(v, dp){ var a = Math.abs(v).toFixed(dp == null ? 1 : dp); if (Number(a) === 0) return "0" + (dp === 0 ? "" : "." + "0".repeat(dp == null ? 1 : dp)); return (v > 0 ? "+" : "−") + a; }
+  function signed(v, dp){ var d = dp == null ? 1 : dp; var a = Math.abs(v).toFixed(d); if (Number(a) === 0) return (0).toFixed(d); return (v > 0 ? "+" : "−") + a; }
   function r1(v){ return Math.round(v * 10) / 10; }
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+  function dateTxt(t){ try { return new Date(t).toLocaleDateString(undefined, {day:"numeric", month:"short", year:"numeric"}); } catch (e) { return ""; } }
 
   function complete(w){ return C.every(function(c){ return w[c] != null && w[c] > 0; }); }
   function calc(w){
@@ -495,24 +592,29 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
   function rates(){ var kf = num(state.set.kf), kr = num(state.set.kr); return (kf > 0 && kr > 0) ? {kf:kf, kr:kr} : null; }
   function median(a){ var s = a.slice().sort(function(x, y){ return x - y; }); var m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
 
-  function samples(){
+  function seqSamples(R){
     var out = [];
-    for (var i = 1; i < state.rounds.length; i++) {
-      var p = state.rounds[i - 1], q = state.rounds[i];
+    for (var i = 1; i < R.length; i++) {
+      var p = R[i - 1], q = R[i];
       var sc = sumC(p.adj);
       if (Math.abs(sc) < 0.25) continue;
       var a = calc(p.w), b = calc(q.w);
       if (!a || !b) continue;
       var dd = b.cross - a.cross;
-      out.push({i:i, sc:sc, d:dd, s:dd / sc});
+      out.push({sc:sc, d:dd, s:dd / sc});
     }
     return out;
+  }
+  function samples(){
+    var out = [];
+    state.history.forEach(function(h){ out = out.concat(seqSamples(h.rounds)); });
+    return out.concat(seqSamples(state.rounds));
   }
   function sens(){
     var ov = num(state.set.sOv);
     if (ov > 0) return {S:ov, src:"your fixed value", fixed:true};
     var good = samples().filter(function(x){ return x.s > 0.3 && x.s < 60; });
-    if (good.length) return {S:median(good.map(function(x){ return x.s; })), src:"learned from your " + (good.length === 1 ? "last adjustment" : good.length + " adjustments"), learned:true, n:good.length};
+    if (good.length) return {S:median(good.map(function(x){ return x.s; })), src:"learned from " + (good.length === 1 ? "one adjustment" : good.length + " adjustments") + " on this car", learned:true, n:good.length};
     var r = rates();
     if (r) return {S:(1 / (1 / r.kf + 1 / r.kr)) / G, src:"estimated from your spring rates"};
     return {S:DEFAULT_S, src:"starting guess", guess:true};
@@ -554,8 +656,7 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
         '<div class="w-wrap"><input id="w-' + c + '" class="w-in" inputmode="decimal" autocomplete="off" enterkeyhint="next" data-corner="' + c + '"><span class="w-unit u-label">kg</span></div>' +
         '<div class="rh-row"><label for="rh-' + c + '">Ride height</label><input id="rh-' + c + '" class="rh-in" inputmode="decimal" autocomplete="off" data-corner="' + c + '"><span>mm</span></div>';
     });
-    var g = $("#adj-grid");
-    g.innerHTML = C.map(function(c){
+    $("#adj-grid").innerHTML = C.map(function(c){
       return '<div class="adj"><div class="adj-top"><span class="code" style="font-size:1.2rem">' + c + '</span>' +
         '<div class="seg" role="group" aria-label="' + NAME[c] + ' direction">' +
         '<button type="button" data-dir="1" data-corner="' + c + '" id="up-' + c + '">Raise</button>' +
@@ -600,9 +701,9 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     var r = calc(state.cur.w);
     var unitTxt = U();
     document.querySelectorAll(".u-label").forEach(function(el){ el.textContent = unitTxt; });
-    $("#unit-kg").setAttribute("aria-pressed", state.unit === "kg" ? "true" : "false");
-    $("#unit-lb").setAttribute("aria-pressed", state.unit === "lb" ? "true" : "false");
-    $("#wake").setAttribute("aria-pressed", state.wake ? "true" : "false");
+    $("#unit-kg").setAttribute("aria-pressed", app.unit === "kg" ? "true" : "false");
+    $("#unit-lb").setAttribute("aria-pressed", app.unit === "lb" ? "true" : "false");
+    $("#wake").setAttribute("aria-pressed", app.wake ? "true" : "false");
     $("#example-banner").hidden = !state.example;
     $("#custom-field").hidden = state.set.mode !== "custom";
     $("#sOv-label").textContent = "Fixed sensitivity (" + unitTxt + " per mm)";
@@ -621,14 +722,51 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     $("#m-b").textContent = r ? fwu(r.cross) : "–";
     drawDiag(r);
 
+    renderCars();
     renderSensHelp();
     renderReadout(r);
     renderAdvice(r);
     renderAdjNotes();
     renderSaveLabel();
     renderLog();
+    renderHistory();
     renderChecklists();
     renderFinal();
+  }
+
+  function carMeta(c){
+    var times = c.rounds.map(function(r){ return r.t; });
+    c.history.forEach(function(h){ times.push(h.t); h.rounds.forEach(function(r){ times.push(r.t); }); });
+    var lastT = times.length ? Math.max.apply(null, times) : null;
+    var bits = [];
+    bits.push(c.rounds.length ? c.rounds.length + " round" + (c.rounds.length > 1 ? "s" : "") + " this session" : "No rounds this session");
+    if (c.history.length) bits.push(c.history.length + " past session" + (c.history.length > 1 ? "s" : ""));
+    if (lastT) bits.push("last used " + dateTxt(lastT));
+    return bits.join(" · ");
+  }
+  function renderCars(){
+    $("#car-eyebrow").textContent = state.name || "Car";
+    var sel = $("#car-select");
+    var opts = app.cars.map(function(c){ return '<option value="' + esc(c.id) + '">' + esc(c.name || "Car") + '</option>'; }).join("");
+    if (sel.dataset.sig !== opts) { sel.innerHTML = opts; sel.dataset.sig = opts; }
+    sel.value = state.id;
+    $("#car-count").textContent = app.cars.length + (app.cars.length === 1 ? " car" : " cars");
+    var list = $("#car-list");
+    var typing = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains("carname");
+    if (typing) {
+      app.cars.forEach(function(c){ var m = document.getElementById("meta-" + c.id); if (m) m.textContent = carMeta(c); });
+      return;
+    }
+    list.innerHTML = app.cars.map(function(c){
+      var on = c.id === state.id;
+      return '<li class="' + (on ? "active" : "") + '">' +
+        '<label class="sr" for="name-' + esc(c.id) + '">Car name</label>' +
+        '<input class="carname" id="name-' + esc(c.id) + '" data-id="' + esc(c.id) + '" value="' + esc(c.name) + '" autocomplete="off">' +
+        '<div class="caractions">' +
+        (on ? '<span class="tag">In use</span>' : '<button class="btn small" type="button" data-open="' + esc(c.id) + '">Open</button>') +
+        '<button class="btn small danger" type="button" data-del="' + esc(c.id) + '">Delete</button></div>' +
+        '<span class="carmeta" id="meta-' + esc(c.id) + '">' + esc(carMeta(c)) + '</span></li>';
+    }).join("");
   }
 
   function drawDiag(r){
@@ -643,7 +781,6 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
       var a = ctr(L[1]), b = ctr(L[2]), el = $("#" + L[0]);
       el.setAttribute("x1", a[0]); el.setAttribute("y1", a[1]);
       el.setAttribute("x2", b[0]); el.setAttribute("y2", b[1]);
-      el.setAttribute("stroke", L[3]);
       el.setAttribute("stroke-width", L[4].toFixed(1));
       el.setAttribute("stroke-linecap", "round");
       el.setAttribute("stroke-dasharray", r ? "none" : "4 6");
@@ -654,7 +791,7 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
   function renderSensHelp(){
     var s = sens();
     var t = "Sensitivity now: " + fw(s.S, 1) + " " + U() + " of cross weight per mm of spring seat at one corner (" + s.src + "). ";
-    if (s.guess) t += "That's a rough starting figure. After your first saved adjustment the app measures the real value for your car.";
+    if (s.guess) t += "That's a rough starting figure. After your first saved adjustment the app measures the real value for this car.";
     else if (s.fixed) t += "Clear the fixed value to go back to what the car measures.";
     else if (s.learned) t += "It updates every time you save a round after an adjustment.";
     $("#sens-help").textContent = t + " Spring rates are optional; they sharpen the first guess and the ride-height predictions.";
@@ -711,7 +848,7 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
         if (implied <= 0) {
           notes.push(["bad", "Your round " + state.rounds.length + " change should have moved " + signed(fromKg(pred)) + " " + U() + " onto RF + LR, but it moved " + signed(fromKg(actual)) + " " + U() + ". Check that Raise and Lower were recorded the right way round, and that the car settled."]);
         } else {
-          notes.push(["good", "Last change: predicted " + signed(fromKg(pred)) + " " + U() + " on RF + LR, measured " + signed(fromKg(actual)) + " " + U() + ". That's " + fw(implied) + " " + U() + " per mm on your car; saving this round updates the estimate."]);
+          notes.push(["good", "Last change: predicted " + signed(fromKg(pred)) + " " + U() + " on RF + LR, measured " + signed(fromKg(actual)) + " " + U() + ". That's " + fw(implied) + " " + U() + " per mm on this car; saving this round updates the estimate."]);
         }
       }
       var dT = r.T - lr.T;
@@ -741,13 +878,10 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     var mm = Math.abs(need) / S, sg = need > 0 ? 1 : -1;
     function dir(c){ return XS[c] * sg; }
     var opts = [
-      {key:"front", title:"Split on the front axle", note:"Front axle height stays the same.", moves:{}},
-      {key:"rear", title:"Split on the rear axle", note:"Rear axle height stays the same.", moves:{}}
+      {key:"front", title:"Split on the front axle", note:"Front axle height stays the same.", moves:(sg > 0) ? {RF:mm / 2, LF:-mm / 2} : {LF:mm / 2, RF:-mm / 2}},
+      {key:"rear", title:"Split on the rear axle", note:"Rear axle height stays the same.", moves:(sg > 0) ? {LR:mm / 2, RR:-mm / 2} : {RR:mm / 2, LR:-mm / 2}}
     ];
-    opts[0].moves = (sg > 0) ? {RF:mm / 2, LF:-mm / 2} : {LF:mm / 2, RF:-mm / 2};
-    opts[1].moves = (sg > 0) ? {LR:mm / 2, RR:-mm / 2} : {RR:mm / 2, LR:-mm / 2};
-    var singleOrder = sg > 0 ? ["RF", "LR", "LF", "RR"] : ["LF", "RR", "RF", "LR"];
-    singleOrder.forEach(function(c){
+    (sg > 0 ? ["RF", "LR", "LF", "RR"] : ["LF", "RR", "RF", "LR"]).forEach(function(c){
       var m = {}; m[c] = dir(c) * mm;
       opts.push({key:c, title:(dir(c) > 0 ? "Raise " : "Lower ") + c + " only", note:"One corner, one lock ring.", moves:m});
     });
@@ -825,7 +959,7 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     var body = $("#log-body"), learn = $("#log-learn");
     var R = state.rounds;
     if (!R.length) {
-      body.innerHTML = '<div class="tablewrap"><p class="empty">No rounds saved yet. On the Balance tab, enter the four readings and tap Save round.</p></div>';
+      body.innerHTML = '<div class="tablewrap"><p class="empty">No rounds saved for ' + esc(state.name) + ' this session. On the Balance tab, enter the four readings and tap Save round.</p></div>';
     } else {
       var s = sens();
       var rows = R.map(function(rd, i){
@@ -851,8 +985,8 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     var smp = samples(), s2 = sens();
     var lines = [];
     var good = smp.filter(function(x){ return x.s > 0.3 && x.s < 60; });
-    if (good.length) lines.push("<p><b>Your car:</b> " + fw(s2.learned ? s2.S : median(good.map(function(x){ return x.s; }))) + " " + U() + " of cross weight per mm of spring seat at one corner, from " + good.length + " adjustment" + (good.length > 1 ? "s" : "") + ".</p>");
-    else lines.push("<p><b>Sensitivity:</b> not measured yet. Save a round, make a change, then save the next round, and the app will work it out.</p>");
+    if (good.length) lines.push("<p><b>This car:</b> " + fw(median(good.map(function(x){ return x.s; }))) + " " + U() + " of cross weight per mm of spring seat at one corner, from " + good.length + " adjustment" + (good.length > 1 ? "s" : "") + (state.history.length ? " across this and past sessions" : "") + "." + (s2.fixed ? " A fixed value in Setup is overriding it." : "") + "</p>");
+    else lines.push("<p><b>Sensitivity:</b> not measured on this car yet. Save a round, make a change, then save the next round, and the app will work it out.</p>");
     if (smp.length > good.length) lines.push('<p class="note warn">' + (smp.length - good.length) + " adjustment" + (smp.length - good.length > 1 ? "s" : "") + " moved weight the wrong way or by an implausible amount and were left out. Check the Raise/Lower entries in those rounds.</p>");
     var rep = [];
     for (var i = 1; i < R.length; i++) {
@@ -862,10 +996,29 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
       var mx = Math.max.apply(null, rep);
       lines.push('<p><b>Repeatability:</b> with no adjustment, RF + LR moved up to ' + fwu(mx) + ' between readings. ' + (mx > 4 ? "That's a lot of scatter; settle the car more consistently before trusting small changes." : "Good enough to trust small changes.") + '</p>');
     } else {
-      lines.push("<p><b>Repeatability:</b> not checked yet. Save two rounds back to back with no adjustment to see how much the readings scatter.</p>");
+      lines.push("<p><b>Repeatability:</b> not checked this session. Save two rounds back to back with no adjustment to see how much the readings scatter.</p>");
     }
     learn.innerHTML = lines.join("");
     $("#undo-round").disabled = !R.length;
+    $("#new-session").disabled = !R.length;
+    $("#discard-session").disabled = !R.length;
+  }
+
+  function renderHistory(){
+    var el = $("#history");
+    var H = state.history;
+    if (!H.length) {
+      el.innerHTML = '<h3>Past sessions</h3><p class="muted" style="margin-top:6px">When you finish balancing ' + esc(state.name) + ', tap Start new session. The rounds move here and the car\'s settings stay for next time.</p>';
+      return;
+    }
+    var items = H.map(function(h, i){ return {h:h, i:i}; }).reverse().map(function(x){
+      var h = x.h, last = h.rounds[h.rounds.length - 1], c = last ? calc(last.w) : null;
+      var v = c ? "LF " + fw(last.w.LF) + " · RF " + fw(last.w.RF) + " · LR " + fw(last.w.LR) + " · RR " + fw(last.w.RR) + " " + U() + " · cross " + pct(c.crossPct) + " · total " + fwu(c.T) : "–";
+      return '<li><span class="hd">' + esc(dateTxt(h.t)) + ' · ' + h.rounds.length + ' round' + (h.rounds.length > 1 ? 's' : '') + '</span>' +
+        '<button class="btn small danger" type="button" data-delhist="' + x.i + '">Delete</button>' +
+        '<span class="hv">' + esc(v) + '</span></li>';
+    }).join("");
+    el.innerHTML = '<h3>Past sessions</h3><ul class="histlist" style="margin-top:8px">' + items + '</ul>';
   }
 
   function renderChecklists(){
@@ -886,7 +1039,7 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
         cb.checked = on;
         cb.closest("li").classList.toggle("done", on);
       });
-      $(L[3]).textContent = done + " of " + items.length + " done";
+      $(L[3]).textContent = state.name + ": " + done + " of " + items.length + " done";
     });
   }
 
@@ -894,9 +1047,9 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     var el = $("#final-card");
     var R = state.rounds, last = R[R.length - 1];
     var c = last ? calc(last.w) : null;
-    if (!c) { el.innerHTML = '<h3>Final numbers</h3><p class="muted">Save at least one round on the Balance tab and your final numbers will show here.</p>'; return; }
+    if (!c) { el.innerHTML = '<h3>Final numbers</h3><p class="muted">Save at least one round for ' + esc(state.name) + ' on the Balance tab and the final numbers will show here.</p>'; return; }
     var t = targetPct(c), ok = Math.abs((c.crossPct - t) * 100) <= tolPts() + 1e-9;
-    el.innerHTML = '<div class="roundhead"><h3>Final numbers · round ' + R.length + '</h3><span class="pill ' + (ok ? "good" : "warn") + '">' + (ok ? "Within tolerance" : "Outside tolerance") + '</span></div>' +
+    el.innerHTML = '<div class="roundhead"><h3>' + esc(state.name) + ' · round ' + R.length + '</h3><span class="pill ' + (ok ? "good" : "warn") + '">' + (ok ? "Within tolerance" : "Outside tolerance") + '</span></div>' +
       '<dl class="stats">' +
       C.map(function(k){ return stat(k, fwu(last.w[k])); }).join("") +
       stat("Total", fwu(c.T)) + stat("Cross (RF + LR)", pct(c.crossPct)) +
@@ -907,14 +1060,13 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
   /* ---------- summary text ---------- */
   function summary(){
     var R = state.rounds, out = [];
-    var dt = new Date();
-    out.push("Porsche Cayman GT4 corner balance, " + dt.toLocaleDateString(undefined, {day:"numeric", month:"short", year:"numeric"}));
+    out.push(state.name + " corner balance, " + dateTxt(Date.now()));
     var last = R[R.length - 1], c = last ? calc(last.w) : null;
     if (c) {
       out.push("Final (round " + R.length + "): LF " + fw(last.w.LF) + "  RF " + fw(last.w.RF) + "  LR " + fw(last.w.LR) + "  RR " + fw(last.w.RR) + " " + U());
       out.push("Total " + fwu(c.T) + " | Front " + pct(c.front, 1) + " | Left " + pct(c.left, 1) + " | Cross (RF+LR) " + pct(c.crossPct) + " vs target " + pct(targetPct(c)) + " (" + targetName() + ")");
       if (last.rh && C.every(function(k){ return last.rh[k] != null; })) out.push("Ride heights (mm): LF " + last.rh.LF + "  RF " + last.rh.RF + "  LR " + last.rh.LR + "  RR " + last.rh.RR + (state.set.rhRef ? " (" + state.set.rhRef + ")" : ""));
-    } else out.push("No rounds saved yet.");
+    } else out.push("No rounds saved this session.");
     var cond = [];
     if (num(state.set.driver) != null) cond.push("driver " + fwu(num(state.set.driver)));
     if (num(state.set.fuel) != null) cond.push("fuel " + num(state.set.fuel) + " L");
@@ -930,21 +1082,30 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     }
     return out.join("\n");
   }
-  function copyText(msgSel){
-    var txt = summary(), box = $("#copybox"), msg = $(msgSel);
+  function copyOut(txt, box, msg, okTxt, failTxt){
     function fallback(){
       box.hidden = false; box.value = txt; box.focus(); box.select();
-      msg.className = "msg"; msg.textContent = "Copy didn't go through here. The summary is selected below; copy it from there.";
-      if (msgSel !== "#log-msg") switchTab("log");
+      msg.className = "msg"; msg.textContent = failTxt;
     }
     try {
-      navigator.clipboard.writeText(txt).then(function(){ msg.className = "msg ok"; msg.textContent = "Summary copied."; }, fallback);
+      navigator.clipboard.writeText(txt).then(function(){ msg.className = "msg ok"; msg.textContent = okTxt; }, fallback);
+    } catch (e) { fallback(); }
+  }
+  function copySummary(msgSel){
+    var txt = summary();
+    function fallback(){
+      switchTab("log");
+      var box = $("#copybox"); box.hidden = false; box.value = txt; box.focus(); box.select();
+      var m = $("#log-msg"); m.className = "msg"; m.textContent = "Copy didn't go through here. The summary is selected below; copy it from there.";
+    }
+    try {
+      navigator.clipboard.writeText(txt).then(function(){ flash(msgSel, "Summary copied.", true); }, fallback);
     } catch (e) { fallback(); }
   }
 
   /* ---------- tabs ---------- */
   function switchTab(t){
-    state.tab = t;
+    app.tab = t;
     ["prep", "balance", "log", "finish"].forEach(function(k){
       $("#p-" + k).hidden = k !== t;
       $("#t-" + k).setAttribute("aria-selected", k === t ? "true" : "false");
@@ -953,15 +1114,24 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     if (t === "balance") requestAnimationFrame(function(){ drawDiag(calc(state.cur.w)); });
   }
 
+  /* ---------- cars ---------- */
+  function openCar(id){
+    app.activeId = id; state = activeCar();
+    fillInputs(); render(); persist();
+    ["#save-msg", "#log-msg", "#fin-msg"].forEach(function(s){ $(s).textContent = ""; });
+    $("#copybox").hidden = true;
+  }
+  var delArm = {id:null, t:0};
+
   /* ---------- wake lock ---------- */
   var lock = null;
   function requestWake(silent){
-    if (!("wakeLock" in navigator)) { if (!silent) { state.wake = false; flash("#save-msg", "This browser can't keep the screen on. Lengthen your phone's auto-lock instead.", false); } render(); return; }
+    if (!("wakeLock" in navigator)) { if (!silent) { app.wake = false; persist(); flash("#save-msg", "This browser can't keep the screen on. Lengthen your phone's auto-lock instead.", false); } render(); return; }
     navigator.wakeLock.request("screen").then(function(l){
       lock = l; l.addEventListener("release", function(){ lock = null; });
-    }, function(){ if (!silent) { state.wake = false; persist(); render(); flash("#save-msg", "The screen couldn't be kept on here. Lengthen your phone's auto-lock instead.", false); } });
+    }, function(){ if (!silent) { app.wake = false; persist(); render(); flash("#save-msg", "The screen couldn't be kept on here. Lengthen your phone's auto-lock instead.", false); } });
   }
-  document.addEventListener("visibilitychange", function(){ if (state.wake && document.visibilityState === "visible" && !lock) requestWake(true); });
+  document.addEventListener("visibilitychange", function(){ if (app.wake && document.visibilityState === "visible" && !lock) requestWake(true); });
 
   function flash(sel, txt, ok){ var m = $(sel); m.className = "msg " + (ok ? "ok" : "err"); m.textContent = txt; }
 
@@ -984,6 +1154,11 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
     var t = e.target, c = t.dataset && t.dataset.corner;
     if (t.classList.contains("w-in")) { var v = num(t.value); state.cur.w[c] = v == null ? null : toKg(v); }
     else if (t.classList.contains("rh-in")) { state.cur.rh[c] = num(t.value); }
+    else if (t.classList.contains("carname")) {
+      var car = app.cars.filter(function(x){ return x.id === t.dataset.id; })[0];
+      if (!car) return;
+      car.name = t.value.trim() || "Car";
+    }
     else if (t.id && t.id.indexOf("adj-") === 0) { var a = num(t.value); state.adj[c] = a == null ? 0 : state.adjDir[c] * Math.abs(a); }
     else if (t.id && t.id.indexOf("set-") === 0) {
       var k = t.id.slice(4);
@@ -997,18 +1172,85 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
   document.addEventListener("change", function(e){
     var t = e.target;
     if (t.id === "set-mode") { state.set.mode = t.value; persist(); render(); }
+    if (t.id === "car-select") { openCar(t.value); }
+  });
+  $("#add-car-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var inp = $("#new-car-name");
+    var name = inp.value.trim() || ("Car " + (app.cars.length + 1));
+    var car = newCar(name, false);
+    app.cars.push(car);
+    inp.value = "";
+    openCar(car.id);
+    flash("#garage-msg", name + " added and selected. Open Setup to enter its targets.", true);
   });
 
-  var clearArm = 0;
+  var clearArm = 0, restoreArm = 0, histArm = {i:null, t:0};
   document.addEventListener("click", function(e){
     var b = e.target.closest("button"); if (!b) return;
     if (b.dataset.tab) { switchTab(b.dataset.tab); return; }
     if (b.dataset.goto) { switchTab(b.dataset.goto); window.scrollTo({top:0}); return; }
-    if (b.id === "unit-kg" || b.id === "unit-lb") { state.unit = b.id === "unit-kg" ? "kg" : "lb"; fillInputs(); render(); persist(); return; }
+    if (b.id === "unit-kg" || b.id === "unit-lb") { app.unit = b.id === "unit-kg" ? "kg" : "lb"; fillInputs(); render(); persist(); return; }
     if (b.id === "wake") {
-      state.wake = !state.wake; persist();
-      if (state.wake) requestWake(false); else if (lock) { try { lock.release(); } catch (er) {} lock = null; }
+      app.wake = !app.wake; persist();
+      if (app.wake) requestWake(false); else if (lock) { try { lock.release(); } catch (er) {} lock = null; }
       render(); return;
+    }
+    if (b.id === "manage-cars") {
+      var g = $("#garage"); g.hidden = !g.hidden;
+      b.setAttribute("aria-expanded", g.hidden ? "false" : "true");
+      b.textContent = g.hidden ? "Manage cars" : "Close";
+      if (!g.hidden) { $("#garage-msg").textContent = ""; render(); }
+      return;
+    }
+    if (b.dataset.open) { openCar(b.dataset.open); flash("#garage-msg", state.name + " is now selected.", true); return; }
+    if (b.dataset.del) {
+      var id = b.dataset.del;
+      var car = app.cars.filter(function(x){ return x.id === id; })[0]; if (!car) return;
+      if (delArm.id !== id || Date.now() - delArm.t > 4000) {
+        delArm = {id:id, t:Date.now()}; b.textContent = "Tap again to delete";
+        setTimeout(function(){ if (b.isConnected) b.textContent = "Delete"; }, 4000);
+        return;
+      }
+      delArm = {id:null, t:0};
+      app.cars = app.cars.filter(function(x){ return x.id !== id; });
+      if (!app.cars.length) app.cars.push(newCar("My GT4", false));
+      if (app.activeId === id) app.activeId = app.cars[0].id;
+      openCar(app.activeId);
+      flash("#garage-msg", (car.name || "Car") + " deleted.", true);
+      return;
+    }
+    if (b.id === "copy-backup") {
+      var data = JSON.stringify({app:"gt4-corner-balance", version:2, saved:new Date().toISOString(), unit:app.unit, cars:app.cars});
+      copyOut(data, $("#backup-box"), $("#garage-msg"), "Backup of " + app.cars.length + " car" + (app.cars.length > 1 ? "s" : "") + " copied. Paste it somewhere safe.", "Copy didn't go through here. The backup is selected in the box; copy it from there.");
+      return;
+    }
+    if (b.id === "restore-backup") {
+      var txt = $("#backup-box").value.trim();
+      var parsed = null;
+      try { parsed = JSON.parse(txt); } catch (er) {}
+      var list = parsed && (Array.isArray(parsed) ? parsed : parsed.cars);
+      if (!Array.isArray(list) || !list.length) { flash("#garage-msg", "That text isn't a backup from this page. Paste the whole backup into the box and try again.", false); return; }
+      if (Date.now() - restoreArm > 4000) {
+        restoreArm = Date.now(); b.textContent = "Tap again to restore";
+        setTimeout(function(){ b.textContent = "Restore from box"; }, 4000);
+        flash("#garage-msg", "Cars from this backup that are already on the phone will be replaced; the others are added. Tap again to restore.", true);
+        return;
+      }
+      restoreArm = 0; b.textContent = "Restore from box";
+      var added = 0, replaced = 0;
+      list.map(normCar).forEach(function(c){
+        var i = -1;
+        app.cars.forEach(function(x, j){ if (x.id === c.id) i = j; });
+        if (i >= 0) { app.cars[i] = c; replaced++; } else { app.cars.push(c); added++; }
+      });
+      // drop the untouched example car once real cars have arrived
+      var pruned = app.cars.filter(function(c){ return !(c.example && !c.rounds.length && !c.history.length); });
+      if (pruned.length) app.cars = pruned;
+      openCar(app.cars.some(function(c){ return c.id === app.activeId; }) ? app.activeId : app.cars[0].id);
+      $("#backup-box").value = "";
+      flash("#garage-msg", "Restored: " + added + " car" + (added === 1 ? "" : "s") + " added, " + replaced + " replaced.", true);
+      return;
     }
     if (b.id === "clear-example") { clearExample(); var f = $("#w-LF"); if (f) f.focus(); return; }
     if (b.dataset.dir) {
@@ -1035,12 +1277,12 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
       state.cur = {w:blank(), rh:blank()};
       state.adj = zeros();
       fillInputs(); render(); persist();
-      flash("#save-msg", "Round " + state.rounds.length + " saved. " + (hadMove ? "Make the change, settle the car, then enter the new readings above." : "Settle the car and enter the next readings above."), true);
+      flash("#save-msg", state.name + ", round " + state.rounds.length + " saved. " + (hadMove ? "Make the change, settle the car, then enter the new readings above." : "Settle the car and enter the next readings above."), true);
       $("#plan").scrollIntoView({behavior:"smooth", block:"start"});
       return;
     }
-    if (b.id === "copy-log") { copyText("#log-msg"); return; }
-    if (b.id === "copy-final") { copyText("#fin-msg"); return; }
+    if (b.id === "copy-log") { copySummary("#log-msg"); return; }
+    if (b.id === "copy-final") { copySummary("#fin-msg"); return; }
     if (b.id === "undo-round") {
       if (!state.rounds.length) return;
       var gone = state.rounds.pop();
@@ -1050,15 +1292,31 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
       flash("#log-msg", "Round " + (state.rounds.length + 1) + " deleted. Its readings are back on the Balance tab.", true);
       return;
     }
-    if (b.id === "clear-all") {
-      if (Date.now() - clearArm > 4000) { clearArm = Date.now(); b.textContent = "Tap again to clear"; setTimeout(function(){ b.textContent = "Clear everything"; }, 4000); return; }
-      clearArm = 0;
-      var keepUnit = state.unit;
-      state = fresh(); state.unit = keepUnit; state.example = false; state.cur = {w:blank(), rh:blank()};
-      $("#prep-list").dataset.built = ""; $("#fin-list").dataset.built = "";
-      fillInputs(); render(); persist(); switchTab("log");
-      b.textContent = "Clear everything";
-      flash("#log-msg", "Everything cleared.", true);
+    if (b.id === "new-session") {
+      if (!state.rounds.length) return;
+      state.history.push({t:Date.now(), rounds:state.rounds});
+      state.rounds = []; state.cur = {w:blank(), rh:blank()}; state.adj = zeros();
+      state.prep = {}; state.fin = {}; state.example = false;
+      fillInputs(); render(); persist();
+      flash("#log-msg", "Session saved under Past sessions. " + state.name + "'s settings are kept for next time.", true);
+      return;
+    }
+    if (b.id === "discard-session") {
+      if (!state.rounds.length) return;
+      if (Date.now() - clearArm > 4000) { clearArm = Date.now(); b.textContent = "Tap again to discard"; setTimeout(function(){ b.textContent = "Discard this session"; }, 4000); return; }
+      clearArm = 0; b.textContent = "Discard this session";
+      state.rounds = []; state.cur = {w:blank(), rh:blank()}; state.adj = zeros(); state.example = false;
+      fillInputs(); render(); persist();
+      flash("#log-msg", "This session's rounds were discarded. Settings and past sessions are unchanged.", true);
+      return;
+    }
+    if (b.dataset.delhist != null) {
+      var hi = Number(b.dataset.delhist);
+      if (histArm.i !== hi || Date.now() - histArm.t > 4000) { histArm = {i:hi, t:Date.now()}; b.textContent = "Tap again"; setTimeout(function(){ if (b.isConnected) b.textContent = "Delete"; }, 4000); return; }
+      histArm = {i:null, t:0};
+      state.history.splice(hi, 1);
+      render(); persist();
+      flash("#log-msg", "Past session deleted.", true);
       return;
     }
   });
@@ -1066,9 +1324,10 @@ textarea.copybox{width:100%;min-height:180px;border:1px solid var(--line);border
   /* ---------- boot ---------- */
   buildPads();
   fillInputs();
-  switchTab(state.tab || "balance");
+  switchTab(app.tab || "balance");
   render();
-  if (state.wake) requestWake(true);
+  persist();
+  if (app.wake) requestWake(true);
   if ("ResizeObserver" in window) new ResizeObserver(function(){ drawDiag(calc(state.cur.w)); }).observe($("#plan"));
   else window.addEventListener("resize", function(){ drawDiag(calc(state.cur.w)); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ drawDiag(calc(state.cur.w)); });
